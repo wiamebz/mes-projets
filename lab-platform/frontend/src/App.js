@@ -8,6 +8,7 @@ import PublicRoute from './components/PublicRoute'
 import AdminRoute from './components/AdminRoute'
 import AdminUserDetail from './pages/AdminUserDetail'
 import AdminTentatives from './pages/AdminTentatives'
+import AdminGestion from './pages/AdminGestion'   // ← AJOUT
 import HomePage from './pages/HomePage'
 import Profil from './pages/Profil'
 
@@ -26,6 +27,7 @@ function App() {
 
         {/* Admin */}
         <Route path="/admin"                     element={<AdminRoute><Admin /></AdminRoute>} />
+        <Route path="/admin/gestion"             element={<AdminRoute><AdminGestion /></AdminRoute>} />   {/* ← AJOUT */}
         <Route path="/admin/user/:id"            element={<AdminRoute><AdminUserDetail /></AdminRoute>} />
         <Route path="/admin/user/:id/lab/:labId" element={<AdminRoute><AdminTentatives /></AdminRoute>} />
 

@@ -49,6 +49,28 @@ async function calculerEtatCategorie(cat, categoriesPrec, user_id) {
 }
 
 /* ─────────────────────────────────────────
+   HELPER : calculer l'état d'un LAB pour un user donné
+   (priorité : lab > catégorie)
+───────────────────────────────────────── */
+function calculerEtatLab(lab, etatCategorie) {
+    // 1. Le lab a un déblocage manuel → ouvert (PRIORITAIRE)
+    if (lab.deblocage_manuel) {
+        return { debloque: true, raison: 'lab_deblocage_admin' }
+    }
+
+    // 2. Le lab a un verrouillage manuel → fermé (PRIORITAIRE)
+    if (lab.verrouillage_manuel) {
+        return { debloque: false, raison: 'lab_verrouille_admin' }
+    }
+
+    // 3. Sinon, le lab hérite de l'état de sa catégorie
+    return {
+        debloque: etatCategorie.estOuverte,
+        raison:   etatCategorie.raison,
+    }
+}
+
+/* ─────────────────────────────────────────
    GET /api/labs/categories
    Renvoie toutes les catégories avec leurs labs + stats
 ───────────────────────────────────────── */
@@ -63,7 +85,7 @@ router.get('/categories', async (req, res) => {
         for (let i = 0; i < toutesCategories.length; i++) {
             const cat            = toutesCategories[i]
             const categoriesPrec = toutesCategories.slice(0, i)
-            const etat           = await calculerEtatCategorie(cat, categoriesPrec, user_id)
+            const etatCat        = await calculerEtatCategorie(cat, categoriesPrec, user_id)
 
             const labsCategorie = tousLesLabs.filter(l => l.categorie === cat.nom)
 
@@ -84,10 +106,12 @@ router.get('/categories', async (req, res) => {
 
                 const reussie = await Session.findOne({ user_id, lab_id: lab._id, reussi: true })
 
-                // Date du dernier essai
                 const derniereSession = sessions.length > 0
                     ? sessions.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0].createdAt
                     : null
+
+                // ── État du lab (lab override > catégorie) ──
+                const etatLab = calculerEtatLab(lab, etatCat)
 
                 return {
                     _id:             lab._id,
@@ -97,7 +121,8 @@ router.get('/categories', async (req, res) => {
                     ordre:           lab.ordre,
                     tauxCompletion,
                     reussi:          !!reussie,
-                    debloque:        etat.estOuverte,
+                    debloque:        etatLab.debloque,
+                    raison:          etatLab.raison,
                     etapesTotal,
                     etapesOk,
                     derniereSession,
@@ -116,8 +141,8 @@ router.get('/categories', async (req, res) => {
                 description:    cat.description,
                 ordre:          cat.ordre,
                 date_ouverture: cat.date_ouverture,
-                estOuverte:     etat.estOuverte,
-                raison:         etat.raison,
+                estOuverte:     etatCat.estOuverte,
+                raison:         etatCat.raison,
                 tauxCategorie,
                 labsReussis,
                 totalLabs:      labsAvecTaux.length,
@@ -134,6 +159,7 @@ router.get('/categories', async (req, res) => {
 /* ─────────────────────────────────────────
    GET /api/labs
    Renvoie tous les labs avec état débloqué/réussi/étapes
+   (avec priorité lab > catégorie)
 ───────────────────────────────────────── */
 router.get('/', async (req, res) => {
     try {
@@ -141,7 +167,7 @@ router.get('/', async (req, res) => {
         const labs             = await Lab.find().sort({ ordre: 1 })
         const toutesCategories = await Categorie.find().sort({ ordre: 1 })
 
-        // Cache des états de chaque catégorie (éviter recalcul)
+        // Cache des états de chaque catégorie
         const etatsCategories = {}
         for (let i = 0; i < toutesCategories.length; i++) {
             const cat            = toutesCategories[i]
@@ -150,8 +176,10 @@ router.get('/', async (req, res) => {
         }
 
         const labsAvecStatut = await Promise.all(labs.map(async (lab) => {
-            const etatCat = etatsCategories[lab.categorie] || { estOuverte: true }
-            let debloque  = etatCat.estOuverte
+            const etatCat = etatsCategories[lab.categorie] || { estOuverte: true, raison: 'debloque' }
+
+            // ── Calcul de l'état du lab (lab override > catégorie) ──
+            const etatLab = calculerEtatLab(lab, etatCat)
 
             const sessionLabReussie = await Session.findOne({
                 user_id,
@@ -181,7 +209,8 @@ router.get('/', async (req, res) => {
                 ordre:          lab.ordre,
                 categorie:      lab.categorie,
                 date_ouverture: lab.date_ouverture,
-                debloque,
+                debloque:       etatLab.debloque,
+                raison:         etatLab.raison,
                 reussi:         !!sessionLabReussie,
                 tauxCompletion,
                 etapesTotal,
