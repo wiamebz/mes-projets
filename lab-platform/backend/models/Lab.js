@@ -34,6 +34,20 @@ const labSchema = new mongoose.Schema({
         // null = disponible immédiatement
         // Date future = lab verrouillé jusqu'à cette date
         // ex: new Date('2026-05-01')
+    },
+
+    // ─── NOUVEAUX CHAMPS : contrôle individuel par lab ───
+    verrouillage_manuel: {
+        type: Boolean,
+        default: false
+        // true = l'admin force ce lab à être verrouillé
+        // (prime sur l'état de la catégorie)
+    },
+    deblocage_manuel: {
+        type: Boolean,
+        default: false
+        // true = l'admin force ce lab à être débloqué
+        // (prime sur l'état de la catégorie)
     }
 }, { timestamps: true })
 
