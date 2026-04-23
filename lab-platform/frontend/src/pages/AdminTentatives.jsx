@@ -2,25 +2,60 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
 /* ─────────────────────────────────────────
-   DESIGN TOKENS
+   THÈME — light / dark (admin séparé du user)
 ───────────────────────────────────────── */
-const C = {
-  orange:      '#FF7900',
-  orangeDark:  '#E05C00',
-  orangeLight: '#FFF3E8',
-  black:       '#1A1A1A',
-  darkGray:    '#333333',
-  midGray:     '#595959',
-  lightGray:   '#F4F4F4',
-  border:      '#E0E0E0',
-  white:       '#FFFFFF',
-  bg:          '#F2F2F2',
-  ok:          '#2E7D32',
-  okLight:     '#E8F5E9',
-  okBorder:    '#A5D6A7',
-  err:         '#C62828',
-  errLight:    '#FFEBEE',
-  errBorder:   '#EF9A9A',
+function getTheme(dark) {
+  return dark ? {
+    bg:          '#111318',
+    bgCard:      '#1E2128',
+    bgSecond:    '#1A1D24',
+    bgRowHov:    '#252830',
+    border:      '#2A2D37',
+    borderOk:    '#2E5C31',
+    borderErr:   '#5C2626',
+    text:        '#F0F0F0',
+    textSub:     '#9AA0B0',
+    textMuted:   '#5A6070',
+    orange:      '#FF7900',
+    orangeDark:  '#E05C00',
+    orangeLight: 'rgba(255,121,0,0.12)',
+    ok:          '#4CAF50',
+    okLight:     'rgba(76,175,80,0.1)',
+    err:         '#EF5350',
+    errLight:    'rgba(239,83,80,0.1)',
+    navBg:       '#13151B',
+    pillBg:      '#2A2D37',
+    avatarBg:    '#FF7900',
+    etapeOkBg:   'rgba(76,175,80,0.08)',
+    etapeErrBg:  'rgba(239,83,80,0.08)',
+    monoBg:      'rgba(255,255,255,0.06)',
+    heroBg:      '#1A1D24',
+  } : {
+    bg:          '#F2F2F2',
+    bgCard:      '#FFFFFF',
+    bgSecond:    '#FAFAFA',
+    bgRowHov:    '#F5F5F5',
+    border:      '#E0E0E0',
+    borderOk:    '#A5D6A7',
+    borderErr:   '#EF9A9A',
+    text:        '#1A1A1A',
+    textSub:     '#595959',
+    textMuted:   '#9E9E9E',
+    orange:      '#FF7900',
+    orangeDark:  '#E05C00',
+    orangeLight: '#FFF3E8',
+    ok:          '#2E7D32',
+    okLight:     '#E8F5E9',
+    err:         '#C62828',
+    errLight:    '#FFEBEE',
+    navBg:       '#FFFFFF',
+    pillBg:      '#F4F4F4',
+    avatarBg:    '#1A1A1A',
+    etapeOkBg:   'rgba(46,125,50,0.06)',
+    etapeErrBg:  'rgba(198,40,40,0.06)',
+    monoBg:      'rgba(0,0,0,0.04)',
+    heroBg:      '#FFFFFF',
+  }
 }
 
 const FONT = "'Helvetica Neue', Helvetica, Arial, sans-serif"
@@ -30,7 +65,7 @@ const MONO = "'SF Mono', 'Fira Code', 'Courier New', monospace"
    ICÔNES SVG OUTLINE
 ───────────────────────────────────────── */
 const Icon = {
-  Logout: ({ size = 14, color = C.midGray }) => (
+  Logout: ({ size = 14, color }) => (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
       <path d="M6.25 2.75H3.5a.75.75 0 0 0-.75.75v9a.75.75 0 0 0 .75.75h2.75"
         stroke={color} strokeWidth="1.25" strokeLinecap="round"/>
@@ -38,43 +73,49 @@ const Icon = {
         stroke={color} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   ),
-  ArrowLeft: ({ size = 13, color = C.midGray }) => (
-    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
-      <path d="M13 8H3M7 4l-4 4 4 4" stroke={color} strokeWidth="1.25"
-        strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
-  ),
-  ChevronRight: ({ size = 12, color = '#BDBDBD' }) => (
+  ChevronRight: ({ size = 12, color }) => (
     <svg width={size} height={size} viewBox="0 0 12 12" fill="none" style={{ flexShrink: 0 }}>
       <path d="M4.25 2.5L7.75 6l-3.5 3.5" stroke={color} strokeWidth="1.25"
         strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   ),
-  Clock: ({ size = 13, color = C.midGray }) => (
+  Clock: ({ size = 13, color }) => (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
       <circle cx="8" cy="8" r="6.25" stroke={color} strokeWidth="1.25"/>
       <path d="M8 4.75V8l2.25 1.5" stroke={color} strokeWidth="1.25"
         strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   ),
-  CheckCircle: ({ size = 13, color = C.ok }) => (
+  Sun: ({ size = 16, color }) => (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
-      <circle cx="8" cy="8" r="6.25" stroke={color} strokeWidth="1.25"/>
-      <path d="M5.25 8.25l2 2 3.5-4" stroke={color} strokeWidth="1.25"
-        strokeLinecap="round" strokeLinejoin="round"/>
+      <circle cx="8" cy="8" r="3" stroke={color} strokeWidth="1.25"/>
+      <path d="M8 1.5v1.25M8 13.25V14.5M1.5 8h1.25M13.25 8H14.5M3.4 3.4l.88.88M11.72 11.72l.88.88M11.72 4.28l-.88.88M4.28 11.72l-.88.88"
+        stroke={color} strokeWidth="1.25" strokeLinecap="round"/>
     </svg>
   ),
-  XCircle: ({ size = 13, color = C.err }) => (
+  Moon: ({ size = 16, color }) => (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
-      <circle cx="8" cy="8" r="6.25" stroke={color} strokeWidth="1.25"/>
-      <path d="M5.5 5.5l5 5M10.5 5.5l-5 5" stroke={color} strokeWidth="1.25"
-        strokeLinecap="round"/>
+      <path d="M13.5 9.5A6 6 0 0 1 6.5 2.5a6 6 0 1 0 7 7z"
+        stroke={color} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   ),
-  List: ({ size = 14, color = C.midGray }) => (
+  Users: ({ size = 14, color }) => (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
-      <path d="M3 4.5h10M3 8h10M3 11.5h6" stroke={color} strokeWidth="1.25"
-        strokeLinecap="round"/>
+      <circle cx="6" cy="5" r="2.25" stroke={color} strokeWidth="1.25"/>
+      <path d="M1.5 13c0-2.5 2-4 4.5-4s4.5 1.5 4.5 4"
+        stroke={color} strokeWidth="1.25" strokeLinecap="round"/>
+      <path d="M11 3.5a2 2 0 0 1 0 3.5M13.5 13c0-2-1.3-3.5-3-3.8"
+        stroke={color} strokeWidth="1.25" strokeLinecap="round"/>
+    </svg>
+  ),
+  Layers: ({ size = 14, color }) => (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
+      <path d="M2 5.5L8 2.5L14 5.5L8 8.5L2 5.5Z"
+        stroke={color} strokeWidth="1.25" strokeLinejoin="round"/>
+      <path d="M2 10.5L8 13.5L14 10.5"
+        stroke={color} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M2 8L8 11L14 8"
+        stroke={color} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   ),
 }
@@ -105,50 +146,129 @@ function formatDate(date) {
 /* ─────────────────────────────────────────
    NAVBAR ADMIN
 ───────────────────────────────────────── */
-function NavbarAdmin({ user, onDeconnexion }) {
+function NavbarAdmin({ user, dark, onToggleDark, onDeconnexion, T, navigate }) {
   const [hovLogout, setHovLogout] = useState(false)
+  const [hovTheme,  setHovTheme]  = useState(false)
+  const currentPath = window.location.pathname
+
+  const navLinks = [
+    { label: 'Utilisateurs', path: '/admin' },
+    { label: 'Parcours',     path: '/admin/gestion' },
+  ]
 
   return (
     <nav style={{
-      background: C.white, borderBottom: `3px solid ${C.orange}`,
+      background: T.navBg,
+      borderBottom: `3px solid ${T.orange}`,
       display: 'flex', alignItems: 'center',
       justifyContent: 'space-between',
       padding: '0 32px', height: '60px',
       position: 'sticky', top: 0, zIndex: 200,
       boxSizing: 'border-box',
+      transition: 'background .3s',
     }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <div style={{
-          width: '34px', height: '34px', borderRadius: '6px',
-          background: C.black, display: 'flex',
-          alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-        }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <rect x="5" y="5" width="14" height="14" rx="2" stroke="white" strokeWidth="2"/>
-            <path d="M9 12h6M12 9v6" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-          </svg>
+      {/* Logo + Liens */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{
+            width: '34px', height: '34px', borderRadius: '6px',
+            background: dark ? '#F0F0F0' : '#1A1A1A',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+            transition: 'background .3s',
+          }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <rect x="5" y="5" width="14" height="14" rx="2"
+                stroke={dark ? '#1A1A1A' : 'white'} strokeWidth="2"/>
+              <path d="M9 12h6M12 9v6"
+                stroke={dark ? '#1A1A1A' : 'white'} strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+          </div>
+          <div style={{ lineHeight: 1 }}>
+            <div style={{
+              fontSize: '15px', fontWeight: '700',
+              color: T.text, fontFamily: FONT, letterSpacing: '-0.2px',
+              transition: 'color .3s',
+            }}>
+              Lab<span style={{ color: T.orange }}>Platform</span>
+            </div>
+            <div style={{
+              fontSize: '10px', color: T.textMuted,
+              fontWeight: '400', marginTop: '2px', fontFamily: FONT,
+              transition: 'color .3s',
+            }}>
+              Administration · Learneo
+            </div>
+          </div>
         </div>
-        <div style={{ lineHeight: 1 }}>
-          <div style={{ fontSize: '15px', fontWeight: '700', color: C.black, fontFamily: FONT }}>
-            Lab<span style={{ color: C.orange }}>Platform</span>
-          </div>
-          <div style={{ fontSize: '10px', color: '#9E9E9E', fontWeight: '400', marginTop: '2px', fontFamily: FONT }}>
-            Administration · Learneo
-          </div>
+
+        {/* Liens nav */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+          {navLinks.map(link => {
+            const isActive = currentPath === link.path ||
+              (link.path === '/admin' && currentPath.startsWith('/admin/user'))
+            return (
+              <button
+                key={link.path}
+                onClick={() => navigate(link.path)}
+                style={{
+                  fontSize: '13px',
+                  fontWeight: isActive ? '700' : '500',
+                  color: isActive ? T.orange : T.textSub,
+                  padding: '7px 14px',
+                  border: 'none',
+                  borderRadius: '6px',
+                  background: isActive ? T.orangeLight : 'transparent',
+                  cursor: 'pointer',
+                  fontFamily: FONT,
+                  transition: 'all .15s',
+                }}
+              >
+                {link.label}
+              </button>
+            )
+          })}
         </div>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+      {/* Droite */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        {/* Toggle dark/light */}
+        <button
+          onClick={onToggleDark}
+          onMouseEnter={() => setHovTheme(true)}
+          onMouseLeave={() => setHovTheme(false)}
+          title={dark ? 'Mode clair' : 'Mode sombre'}
+          style={{
+            width: '34px', height: '34px', borderRadius: '50%', border: 'none',
+            background: hovTheme ? T.pillBg : 'transparent',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer', transition: 'background .15s', flexShrink: 0,
+          }}
+        >
+          {dark
+            ? <Icon.Sun  size={16} color={T.orange} />
+            : <Icon.Moon size={16} color={T.textSub} />
+          }
+        </button>
+
+        <div style={{ width: '1px', height: '20px', background: T.border }} />
+
         <div style={{
           width: '30px', height: '30px', borderRadius: '50%',
-          background: C.black, display: 'flex', alignItems: 'center',
-          justifyContent: 'center', fontSize: '11px', fontWeight: '700', color: '#fff',
+          background: T.avatarBg,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: '11px', fontWeight: '700', color: '#fff', fontFamily: FONT,
+          transition: 'background .3s',
         }}>
           {initiales(user?.nom)}
         </div>
-        <span style={{ fontSize: '13px', fontWeight: '500', color: C.darkGray, fontFamily: FONT }}>
+        <span style={{
+          fontSize: '13px', fontWeight: '500',
+          color: T.text, fontFamily: FONT, transition: 'color .3s',
+        }}>
           {user?.nom}
         </span>
+
         <button
           onClick={onDeconnexion}
           onMouseEnter={() => setHovLogout(true)}
@@ -156,14 +276,14 @@ function NavbarAdmin({ user, onDeconnexion }) {
           style={{
             display: 'flex', alignItems: 'center', gap: '6px',
             fontSize: '12px', fontWeight: '500',
-            color: hovLogout ? C.orange : C.midGray,
+            color: hovLogout ? T.orange : T.textSub,
             padding: '5px 11px',
-            border: `1px solid ${hovLogout ? C.orange : C.border}`,
+            border: `1px solid ${hovLogout ? T.orange : T.border}`,
             borderRadius: '4px', background: 'none',
             cursor: 'pointer', fontFamily: FONT, transition: 'all .15s',
           }}
         >
-          <Icon.Logout size={13} color={hovLogout ? C.orange : C.midGray} />
+          <Icon.Logout size={13} color={hovLogout ? T.orange : T.textSub} />
           Déconnexion
         </button>
       </div>
@@ -174,22 +294,28 @@ function NavbarAdmin({ user, onDeconnexion }) {
 /* ─────────────────────────────────────────
    BREADCRUMB
 ───────────────────────────────────────── */
-function Breadcrumb({ items }) {
+function Breadcrumb({ items, T }) {
   return (
     <div style={{
-      background: C.white, borderBottom: `1px solid ${C.border}`,
+      background: T.navBg,
+      borderBottom: `1px solid ${T.border}`,
       padding: '9px 32px', display: 'flex',
       alignItems: 'center', gap: '6px',
       fontSize: '12px', fontFamily: FONT,
+      transition: 'background .3s, border-color .3s',
     }}>
       {items.map((item, i) => (
         <span key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          {i > 0 && <Icon.ChevronRight />}
-          <span style={{
-            color: item.onClick ? C.orange : C.black,
-            fontWeight: '500',
-            cursor: item.onClick ? 'pointer' : 'default',
-          }} onClick={item.onClick}>
+          {i > 0 && <Icon.ChevronRight size={12} color={T.textMuted} />}
+          <span
+            style={{
+              color: item.onClick ? T.orange : T.text,
+              fontWeight: '500',
+              cursor: item.onClick ? 'pointer' : 'default',
+              transition: 'color .3s',
+            }}
+            onClick={item.onClick}
+          >
             {item.label}
           </span>
         </span>
@@ -201,94 +327,98 @@ function Breadcrumb({ items }) {
 /* ─────────────────────────────────────────
    CARD TENTATIVE
 ───────────────────────────────────────── */
-function TentativeCard({ session, index, total }) {
+function TentativeCard({ session, index, total, T }) {
   const reussi      = session.reussi
   const etapes      = session.etapes || []
-  const etapesOk    = etapes.filter(e => e.completee).length
-  const etapesTotal = etapes.length
   const numero      = total - index
 
   return (
     <div style={{
-      background: C.white,
-      border: `1px solid ${reussi ? C.okBorder : C.border}`,
+      background: T.bgCard,
+      border: `1px solid ${reussi ? T.borderOk : T.border}`,
       borderRadius: '6px', overflow: 'hidden',
+      transition: 'background .3s, border-color .3s',
     }}>
       {/* Barre top colorée */}
-      <div style={{ height: '3px', background: reussi ? C.ok : C.border }} />
+      <div style={{
+        height: '3px',
+        background: reussi ? T.ok : T.border,
+        transition: 'background .3s',
+      }} />
 
       {/* Header tentative */}
       <div style={{
         display: 'flex', justifyContent: 'space-between',
         alignItems: 'center', padding: '14px 20px',
-        borderBottom: etapes.length > 0 ? `1px solid ${C.border}` : 'none',
-        background: reussi ? '#FAFFFE' : C.white,
+        borderBottom: etapes.length > 0 ? `1px solid ${T.border}` : 'none',
+        background: reussi
+          ? (T.bgCard === '#FFFFFF' ? '#FAFFFE' : 'rgba(76,175,80,0.04)')
+          : T.bgCard,
+        transition: 'background .3s, border-color .3s',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           {/* Numéro tentative */}
           <span style={{
             fontSize: '11px', fontWeight: '700', padding: '3px 10px',
             borderRadius: '3px', textTransform: 'uppercase', letterSpacing: '0.4px',
-            background: C.darkGray, color: '#fff', fontFamily: FONT,
+            background: T.pillBg, color: T.text, fontFamily: FONT,
+            transition: 'background .3s, color .3s',
           }}>
             Tentative {numero}
           </span>
 
           {/* Date */}
-          <span style={{ fontSize: '12px', color: C.midGray, fontFamily: FONT }}>
+          <span style={{
+            fontSize: '12px', color: T.textSub,
+            fontFamily: FONT, transition: 'color .3s',
+          }}>
             {formatDate(session.date_connexion)}
           </span>
 
           {/* Durée */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <Icon.Clock size={12} color={C.midGray} />
-            <span style={{ fontSize: '12px', color: C.midGray, fontFamily: FONT }}>
+            <Icon.Clock size={12} color={T.textMuted} />
+            <span style={{
+              fontSize: '12px', color: T.textSub,
+              fontFamily: FONT, transition: 'color .3s',
+            }}>
               {formatTemps(session.temps_passe)}
             </span>
           </div>
-
-          {/* Étapes */}
-          {/* {etapesTotal > 0 && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <Icon.List size={12} color={C.midGray} />
-              <span style={{ fontSize: '12px', color: C.midGray, fontFamily: FONT }}>
-                {etapesOk} / {etapesTotal} étapes
-              </span>
-            </div>
-          )} */}
         </div>
 
         {/* Badge résultat */}
         <span style={{
           display: 'inline-flex', alignItems: 'center', gap: '5px',
           fontSize: '11px', fontWeight: '700',
-          background: reussi ? C.okLight : C.errLight,
-          color: reussi ? C.ok : C.err,
+          background: reussi ? T.okLight : T.errLight,
+          color: reussi ? T.ok : T.err,
           padding: '4px 10px', borderRadius: '3px', fontFamily: FONT,
+          transition: 'background .3s, color .3s',
         }}>
-          {/* {reussi
-            ? <Icon.CheckCircle size={12} color={C.ok} />
-            : <Icon.XCircle size={12} color={C.err} />
-          } */}
           {reussi ? 'Réussi' : 'Échoué'}
         </span>
       </div>
 
       {/* Détail des étapes */}
       {etapes.length > 0 && (
-        <div style={{ padding: '14px 20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <div style={{
+          padding: '14px 20px',
+          display: 'flex', flexDirection: 'column', gap: '8px',
+        }}>
           {etapes.map((etape, j) => (
             <div key={j} style={{
               display: 'flex', alignItems: 'center',
               gap: '12px', padding: '10px 14px',
-              background: etape.completee ? C.okLight : C.errLight,
-              border: `1px solid ${etape.completee ? C.okBorder : C.errBorder}`,
+              background: etape.completee ? T.etapeOkBg : T.etapeErrBg,
+              border: `1px solid ${etape.completee ? T.borderOk : T.borderErr}`,
               borderRadius: '4px',
+              transition: 'background .3s, border-color .3s',
             }}>
               {/* Numéro étape */}
               <div style={{
                 width: '22px', height: '22px', borderRadius: '50%',
-                background: etape.completee ? C.ok : C.err,
+                background: etape.completee ? T.ok : T.err,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: '10px', fontWeight: '700', color: '#fff', flexShrink: 0,
               }}>
@@ -299,20 +429,21 @@ function TentativeCard({ session, index, total }) {
               <div style={{ flex: 1 }}>
                 <div style={{
                   fontSize: '12px', fontWeight: '700',
-                  color: etape.completee ? C.ok : C.err,
+                  color: etape.completee ? T.ok : T.err,
                   fontFamily: FONT, marginBottom: '3px',
                   textTransform: 'capitalize',
+                  transition: 'color .3s',
                 }}>
                   {etape.nom.replace(/_/g, ' ')}
                 </div>
                 <span style={{
-                  fontSize: '11px', color: etape.completee ? C.ok : C.err,
-                  fontFamily: MONO, opacity: 0.85,
-                  background: etape.completee
-                    ? 'rgba(46,125,50,0.08)'
-                    : 'rgba(198,40,40,0.08)',
+                  fontSize: '11px',
+                  color: etape.completee ? T.ok : T.err,
+                  fontFamily: MONO, opacity: 0.9,
+                  background: T.monoBg,
                   padding: '2px 6px', borderRadius: '3px',
                   display: 'inline-block',
+                  transition: 'color .3s, background .3s',
                 }}>
                   {etape.description}
                 </span>
@@ -320,9 +451,10 @@ function TentativeCard({ session, index, total }) {
 
               {/* Temps étape */}
               <span style={{
-                fontSize: '11px', color: C.midGray,
+                fontSize: '11px', color: T.textMuted,
                 fontFamily: FONT, whiteSpace: 'nowrap',
                 fontVariantNumeric: 'tabular-nums',
+                transition: 'color .3s',
               }}>
                 {formatTemps(etape.temps)}
               </span>
@@ -342,10 +474,24 @@ function AdminTentatives() {
   const [user, setUser]         = useState(null)
   const [labTitre, setLabTitre] = useState('')
   const [loading, setLoading]   = useState(true)
+  const [dark, setDark]         = useState(() => {
+    const saved = localStorage.getItem('theme_admin')
+    return saved ? saved === 'dark' : false
+  })
+
   const navigate = useNavigate()
   const { id, labId } = useParams()
   const token  = localStorage.getItem('token')
   const admin  = JSON.parse(localStorage.getItem('user'))
+  const T      = getTheme(dark)
+
+  function toggleDark() {
+    setDark(d => {
+      const next = !d
+      localStorage.setItem('theme_admin', next ? 'dark' : 'light')
+      return next
+    })
+  }
 
   useEffect(() => { chargerDonnees() }, [])
 
@@ -377,10 +523,13 @@ function AdminTentatives() {
 
   if (loading) return (
     <div style={{
-      minHeight: '100vh', background: C.bg,
+      minHeight: '100vh', background: T.bg,
       display: 'flex', alignItems: 'center', justifyContent: 'center',
+      transition: 'background .3s',
     }}>
-      <p style={{ color: C.midGray, fontFamily: FONT, fontSize: '14px' }}>Chargement...</p>
+      <p style={{ color: T.textSub, fontFamily: FONT, fontSize: '14px' }}>
+        Chargement...
+      </p>
     </div>
   )
 
@@ -392,50 +541,53 @@ function AdminTentatives() {
     ? Math.round(sessions.reduce((a, s) => a + (s.temps_passe || 0), 0) / sessions.length) : 0
 
   return (
-    <div style={{ minHeight: '100vh', background: C.bg, fontFamily: FONT }}>
+    <div style={{
+      minHeight: '100vh', background: T.bg,
+      fontFamily: FONT, transition: 'background .3s',
+    }}>
 
-      <NavbarAdmin user={admin} onDeconnexion={deconnexion} />
-      <Breadcrumb items={[
-        { label: 'Utilisateurs',  onClick: () => navigate('/admin') },
-        { label: user?.nom,       onClick: () => navigate(`/admin/user/${id}`) },
-        { label: labTitre },
-      ]} />
+      <NavbarAdmin
+        user={admin}
+        dark={dark}
+        onToggleDark={toggleDark}
+        onDeconnexion={deconnexion}
+        T={T}
+        navigate={navigate}
+      />
+      <Breadcrumb
+        items={[
+          { label: 'Utilisateurs',  onClick: () => navigate('/admin') },
+          { label: user?.nom,       onClick: () => navigate(`/admin/user/${id}`) },
+          { label: labTitre },
+        ]}
+        T={T}
+      />
 
       <div style={{ padding: '26px 32px', maxWidth: '1100px', margin: '0 auto' }}>
 
-        {/* Bouton retour */}
-        {/* <button
-          onClick={() => navigate(`/admin/user/${id}`)}
-          onMouseEnter={e => { e.currentTarget.style.borderColor = C.orange; e.currentTarget.style.color = C.orange }}
-          onMouseLeave={e => { e.currentTarget.style.borderColor = C.border; e.currentTarget.style.color = C.midGray }}
-          style={{
-            display: 'inline-flex', alignItems: 'center', gap: '6px',
-            fontSize: '12px', fontWeight: '500', color: C.midGray,
-            padding: '6px 12px', border: `1px solid ${C.border}`,
-            borderRadius: '4px', background: C.white,
-            cursor: 'pointer', marginBottom: '20px', fontFamily: FONT,
-          }}
-        >
-          <Icon.ArrowLeft size={13} />
-          Retour aux détails
-        </button> */}
-
         {/* Hero lab + stats */}
         <div style={{
-          background: C.white, border: `1px solid ${C.border}`,
+          background: T.heroBg,
+          border: `1px solid ${T.border}`,
           borderRadius: '6px', padding: '20px 26px',
           display: 'flex', justifyContent: 'space-between',
           alignItems: 'center', marginBottom: '22px',
+          transition: 'background .3s, border-color .3s',
         }}>
           <div>
             <h1 style={{
-              fontSize: '18px', fontWeight: '700', color: C.black,
+              fontSize: '18px', fontWeight: '700', color: T.text,
               margin: '0 0 4px 0', fontFamily: FONT, letterSpacing: '-0.3px',
+              transition: 'color .3s',
             }}>
               {labTitre}
             </h1>
-            <p style={{ fontSize: '13px', color: C.midGray, margin: 0, fontFamily: FONT }}>
-              Tentatives de <strong style={{ color: C.black }}>{user?.nom}</strong>
+            <p style={{
+              fontSize: '13px', color: T.textSub,
+              margin: 0, fontFamily: FONT, transition: 'color .3s',
+            }}>
+              Tentatives de{' '}
+              <strong style={{ color: T.text }}>{user?.nom}</strong>
               {' '}· {sessions.length} tentative{sessions.length > 1 ? 's' : ''}
             </p>
           </div>
@@ -443,21 +595,26 @@ function AdminTentatives() {
           {/* KPIs */}
           <div style={{ display: 'flex', gap: '28px' }}>
             {[
-              { val: reussites,             lbl: 'Réussies',    color: C.ok },
-              { val: `${taux}%`,            lbl: 'Taux',        color: taux >= 70 ? C.ok : taux >= 40 ? C.orange : C.err },
-              { val: formatTemps(tempsMoyen), lbl: 'Temps moy.', color: C.black },
+              { val: reussites,               lbl: 'Réussies',    color: T.ok },
+              {
+                val: `${taux}%`,
+                lbl: 'Taux',
+                color: taux >= 70 ? T.ok : taux >= 40 ? T.orange : T.err,
+              },
+              { val: formatTemps(tempsMoyen), lbl: 'Temps moy.', color: T.text },
             ].map(kpi => (
               <div key={kpi.lbl} style={{ textAlign: 'center' }}>
                 <div style={{
                   fontSize: '20px', fontWeight: '700',
                   color: kpi.color, fontFamily: FONT, letterSpacing: '-0.3px',
+                  transition: 'color .3s',
                 }}>
                   {kpi.val}
                 </div>
                 <div style={{
-                  fontSize: '10px', color: C.midGray,
+                  fontSize: '10px', color: T.textMuted,
                   textTransform: 'uppercase', letterSpacing: '0.5px',
-                  fontFamily: FONT, marginTop: '2px',
+                  fontFamily: FONT, marginTop: '2px', transition: 'color .3s',
                 }}>
                   {kpi.lbl}
                 </div>
@@ -474,24 +631,41 @@ function AdminTentatives() {
           <span style={{
             fontSize: '11px', fontWeight: '700',
             textTransform: 'uppercase', letterSpacing: '1px',
-            color: C.midGray, fontFamily: FONT,
+            color: T.textMuted, fontFamily: FONT, transition: 'color .3s',
           }}>
             Historique des tentatives
           </span>
-          <div style={{ flex: 1, height: '1px', background: C.border }} />
+          <div style={{
+            flex: 1, height: '1px',
+            background: T.border, transition: 'background .3s',
+          }} />
         </div>
 
         {/* Liste tentatives */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {sessions.map((session, i) => (
-            <TentativeCard
-              key={i}
-              session={session}
-              index={i}
-              total={sessions.length}
-            />
-          ))}
-        </div>
+        {sessions.length === 0 ? (
+          <div style={{
+            background: T.bgCard, border: `1px solid ${T.border}`,
+            borderRadius: '6px', padding: '40px',
+            textAlign: 'center',
+            transition: 'background .3s, border-color .3s',
+          }}>
+            <p style={{ color: T.textMuted, fontFamily: FONT, fontSize: '13px', margin: 0 }}>
+              Aucune tentative enregistrée pour ce lab.
+            </p>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {sessions.map((session, i) => (
+              <TentativeCard
+                key={i}
+                session={session}
+                index={i}
+                total={sessions.length}
+                T={T}
+              />
+            ))}
+          </div>
+        )}
 
       </div>
     </div>
