@@ -1,50 +1,58 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-
+import logo from '../img/logo.png'
 /* ─────────────────────────────────────────
    THÈME — light / dark (admin séparé du user)
 ───────────────────────────────────────── */
 function getTheme(dark) {
   return dark ? {
-    bg:          '#111318',
-    bgSecond:    '#1A1D24',
-    bgCard:      '#1E2128',
-    bgRowHover:  '#23272F',
-    border:      '#2A2D37',
-    text:        '#F0F0F0',
-    textSub:     '#9AA0B0',
-    textMuted:   '#5A6070',
-    orange:      '#FF7900',
-    orangeDark:  '#E05C00',
+    bg: '#111318',
+    bgSecond: '#1A1D24',
+    bgCard: '#1E2128',
+    bgRowHover: '#23272F',
+    border: '#2A2D37',
+    text: '#F0F0F0',
+    textSub: '#9AA0B0',
+    textMuted: '#5A6070',
+    orange: '#FF7900',
+    orangeDark: '#E05C00',
     orangeLight: 'rgba(255,121,0,0.12)',
-    ok:          '#4CAF50',
-    okLight:     'rgba(76,175,80,0.12)',
-    navBg:       '#13151B',
-    pillBg:      '#2A2D37',
-    inputBg:     '#23272F',
-    logoIcon:    '#F0F0F0',  // logo cube en clair en dark mode
-    logoText:    '#F0F0F0',
-    avatarBg:    '#FF7900',
+    ok: '#4CAF50',
+    okLight: 'rgba(76,175,80,0.12)',
+    err: '#EF5350',
+    errLight: 'rgba(239,83,80,0.12)',
+    navBg: '#13151B',
+    pillBg: '#2A2D37',
+    inputBg: '#23272F',
+    logoIcon: '#F0F0F0',
+    logoText: '#F0F0F0',
+    avatarBg: '#FF7900',
+    overlayBg: 'rgba(0, 0, 0, 0.75)',
+    shadow: '0 20px 60px rgba(0, 0, 0, 0.5)',
   } : {
-    bg:          '#F2F2F2',
-    bgSecond:    '#EAEAEA',
-    bgCard:      '#FFFFFF',
-    bgRowHover:  '#FAFAFA',
-    border:      '#E0E0E0',
-    text:        '#1A1A1A',
-    textSub:     '#595959',
-    textMuted:   '#9E9E9E',
-    orange:      '#FF7900',
-    orangeDark:  '#E05C00',
+    bg: '#F2F2F2',
+    bgSecond: '#EAEAEA',
+    bgCard: '#FFFFFF',
+    bgRowHover: '#FAFAFA',
+    border: '#E0E0E0',
+    text: '#1A1A1A',
+    textSub: '#595959',
+    textMuted: '#9E9E9E',
+    orange: '#FF7900',
+    orangeDark: '#E05C00',
     orangeLight: '#FFF3E8',
-    ok:          '#2E7D32',
-    okLight:     '#E8F5E9',
-    navBg:       '#FFFFFF',
-    pillBg:      '#F4F4F4',
-    inputBg:     '#F4F4F4',
-    logoIcon:    '#1A1A1A',
-    logoText:    '#1A1A1A',
-    avatarBg:    '#1A1A1A',
+    ok: '#2E7D32',
+    okLight: '#E8F5E9',
+    err: '#C62828',
+    errLight: '#FFEBEE',
+    navBg: '#FFFFFF',
+    pillBg: '#F4F4F4',
+    inputBg: '#F4F4F4',
+    logoIcon: '#1A1A1A',
+    logoText: '#1A1A1A',
+    avatarBg: '#1A1A1A',
+    overlayBg: 'rgba(0, 0, 0, 0.5)',
+    shadow: '0 20px 60px rgba(0, 0, 0, 0.25)',
   }
 }
 
@@ -56,59 +64,109 @@ const FONT = "'Helvetica Neue', Helvetica, Arial, sans-serif"
 const Icon = {
   Check: ({ size = 14, color = '#fff' }) => (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
-      <circle cx="8" cy="8" r="6.25" stroke={color} strokeWidth="1.25"/>
-      <path d="M5.25 8.25l2 2 3.5-4" stroke={color} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/>
+      <circle cx="8" cy="8" r="6.25" stroke={color} strokeWidth="1.25" />
+      <path d="M5.25 8.25l2 2 3.5-4" stroke={color} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  ),
+  CheckBold: ({ size = 24, color = '#fff' }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
+      <path d="M20 6L9 17l-5-5" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  ),
+  X: ({ size = 14, color }) => (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
+      <path d="M12 4L4 12M4 4l8 8" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  ),
+  XBold: ({ size = 24, color = '#fff' }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
+      <path d="M18 6L6 18M6 6l12 12" stroke={color} strokeWidth="2.5" strokeLinecap="round" />
     </svg>
   ),
   Logout: ({ size = 14, color }) => (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
-      <path d="M6.25 2.75H3.5a.75.75 0 0 0-.75.75v9a.75.75 0 0 0 .75.75h2.75" stroke={color} strokeWidth="1.25" strokeLinecap="round"/>
-      <path d="M10.25 5.25l2.5 2.75-2.5 2.75M12.75 8H6.75" stroke={color} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M6.25 2.75H3.5a.75.75 0 0 0-.75.75v9a.75.75 0 0 0 .75.75h2.75" stroke={color} strokeWidth="1.25" strokeLinecap="round" />
+      <path d="M10.25 5.25l2.5 2.75-2.5 2.75M12.75 8H6.75" stroke={color} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
   Users: ({ size = 14, color }) => (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
-      <circle cx="6" cy="5" r="2.25" stroke={color} strokeWidth="1.25"/>
-      <path d="M1.5 13c0-2.5 2-4 4.5-4s4.5 1.5 4.5 4" stroke={color} strokeWidth="1.25" strokeLinecap="round"/>
-      <path d="M11 3.5a2 2 0 0 1 0 3.5M13.5 13c0-2-1.3-3.5-3-3.8" stroke={color} strokeWidth="1.25" strokeLinecap="round"/>
+      <circle cx="6" cy="5" r="2.25" stroke={color} strokeWidth="1.25" />
+      <path d="M1.5 13c0-2.5 2-4 4.5-4s4.5 1.5 4.5 4" stroke={color} strokeWidth="1.25" strokeLinecap="round" />
+      <path d="M11 3.5a2 2 0 0 1 0 3.5M13.5 13c0-2-1.3-3.5-3-3.8" stroke={color} strokeWidth="1.25" strokeLinecap="round" />
     </svg>
   ),
   ChevronRight: ({ size = 12, color = '#BDBDBD' }) => (
     <svg width={size} height={size} viewBox="0 0 12 12" fill="none" style={{ flexShrink: 0 }}>
-      <path d="M4.25 2.5L7.75 6l-3.5 3.5" stroke={color} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M4.25 2.5L7.75 6l-3.5 3.5" stroke={color} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
   ArrowRight: ({ size = 13, color }) => (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
-      <path d="M3 8h10M9 4l4 4-4 4" stroke={color} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M3 8h10M9 4l4 4-4 4" stroke={color} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
   Search: ({ size = 13, color }) => (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
-      <circle cx="6.5" cy="6.5" r="4.75" stroke={color} strokeWidth="1.25"/>
-      <path d="M10.5 10.5l2.75 2.75" stroke={color} strokeWidth="1.25" strokeLinecap="round"/>
+      <circle cx="6.5" cy="6.5" r="4.75" stroke={color} strokeWidth="1.25" />
+      <path d="M10.5 10.5l2.75 2.75" stroke={color} strokeWidth="1.25" strokeLinecap="round" />
     </svg>
   ),
   Export: ({ size = 13, color }) => (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
-      <path d="M8 2v8M5 7l3 3 3-3" stroke={color} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d="M3 12h10" stroke={color} strokeWidth="1.25" strokeLinecap="round"/>
+      <path d="M8 2v8M5 7l3 3 3-3" stroke={color} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M3 12h10" stroke={color} strokeWidth="1.25" strokeLinecap="round" />
     </svg>
   ),
   Sun: ({ size = 16, color }) => (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
-      <circle cx="8" cy="8" r="3" stroke={color} strokeWidth="1.25"/>
-      <path d="M8 1.5v1.25M8 13.25V14.5M1.5 8h1.25M13.25 8H14.5M3.4 3.4l.88.88M11.72 11.72l.88.88M11.72 4.28l-.88.88M4.28 11.72l-.88.88" stroke={color} strokeWidth="1.25" strokeLinecap="round"/>
+      <circle cx="8" cy="8" r="3" stroke={color} strokeWidth="1.25" />
+      <path d="M8 1.5v1.25M8 13.25V14.5M1.5 8h1.25M13.25 8H14.5M3.4 3.4l.88.88M11.72 11.72l.88.88M11.72 4.28l-.88.88M4.28 11.72l-.88.88" stroke={color} strokeWidth="1.25" strokeLinecap="round" />
     </svg>
   ),
   Moon: ({ size = 16, color }) => (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
-      <path d="M13.5 9.5A6 6 0 0 1 6.5 2.5a6 6 0 1 0 7 7z" stroke={color} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M13.5 9.5A6 6 0 0 1 6.5 2.5a6 6 0 1 0 7 7z" stroke={color} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  ),
+  Database: ({ size = 20, color }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
+      <ellipse cx="12" cy="5" rx="8" ry="3" stroke={color} strokeWidth="1.5" />
+      <path d="M4 5v6c0 1.66 3.58 3 8 3s8-1.34 8-3V5M4 11v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  ),
+  UsersBold: ({ size = 24, color }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="9" cy="7" r="4" stroke={color} strokeWidth="1.8" />
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  ),
+  LayersBold: ({ size = 24, color }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
+      <path d="M12 2L2 7l10 5 10-5-10-5z" stroke={color} strokeWidth="1.8" strokeLinejoin="round" />
+      <path d="M2 17l10 5 10-5M2 12l10 5 10-5" stroke={color} strokeWidth="1.8" strokeLinejoin="round" />
+    </svg>
+  ),
+  BoxBold: ({ size = 24, color }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
+      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" stroke={color} strokeWidth="1.8" strokeLinejoin="round" />
+      <path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  ),
+  ActivityBold: ({ size = 24, color }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
+      <path d="M22 12h-4l-3 9L9 3l-3 9H2" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  ),
+  ChecksBold: ({ size = 24, color }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
+      <path d="M2 12l4 4 4-4M8 12l4 4 10-10" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
 }
 
-const AVATAR_COLORS = ['#FF7900','#5C6BC0','#26A69A','#EF5350','#AB47BC','#42A5F5']
+const AVATAR_COLORS = ['#FF7900', '#5C6BC0', '#26A69A', '#EF5350', '#AB47BC', '#42A5F5']
 const avatarColor = i => AVATAR_COLORS[i % AVATAR_COLORS.length]
 const initiales = nom => {
   if (!nom) return 'US'
@@ -117,18 +175,248 @@ const initiales = nom => {
 }
 
 /* ─────────────────────────────────────────
+   MODAL EXPORT RESULT — Popup pro
+───────────────────────────────────────── */
+function ExportResultModal({ result, onClose, T, dark }) {
+  if (!result) return null
+
+  const isSuccess = result.type === 'success'
+  const accentColor = isSuccess ? T.ok : T.err
+  const accentLight = isSuccess ? T.okLight : T.errLight
+
+  // Icône header (centrée en rond)
+  const HeaderIcon = isSuccess ? Icon.CheckBold : Icon.XBold
+
+  // Stats cards (uniquement si succès avec des stats)
+  const stats = isSuccess && result.stats ? [
+    { icon: Icon.UsersBold, label: 'Utilisateurs', value: result.stats.users ?? 0, color: '#5C6BC0' },
+    { icon: Icon.LayersBold, label: 'Catégories', value: result.stats.categories ?? 0, color: '#26A69A' },
+    { icon: Icon.BoxBold, label: 'Labs', value: result.stats.labs ?? 0, color: T.orange },
+    { icon: Icon.ActivityBold, label: 'Sessions', value: result.stats.sessions ?? 0, color: '#AB47BC' },
+    { icon: Icon.ChecksBold, label: 'Étapes', value: result.stats.etapes ?? 0, color: '#42A5F5' },
+  ] : []
+
+  return (
+    <>
+      {/* Overlay */}
+      <div
+        onClick={onClose}
+        style={{
+          position: 'fixed', inset: 0,
+          background: T.overlayBg,
+          zIndex: 1000,
+          animation: 'fadeIn .25s ease',
+          backdropFilter: 'blur(4px)',
+          WebkitBackdropFilter: 'blur(4px)',
+        }}
+      />
+
+      {/* Modal */}
+      <div style={{
+        position: 'fixed', top: '50%', left: '50%',
+        transform: 'translate(-50%, -50%)',
+        zIndex: 1001,
+        width: '92%', maxWidth: '540px',
+        background: T.bgCard,
+        border: `1px solid ${T.border}`,
+        borderRadius: '16px',
+        overflow: 'hidden',
+        boxShadow: T.shadow,
+        animation: 'modalIn .35s cubic-bezier(0.34, 1.56, 0.64, 1)',
+        fontFamily: FONT,
+      }}>
+        {/* Bande colorée en haut */}
+        <div style={{ height: '4px', background: accentColor }} />
+
+        {/* Bouton fermer */}
+        <button
+          onClick={onClose}
+          aria-label="Fermer"
+          style={{
+            position: 'absolute', top: '16px', right: '16px',
+            width: '32px', height: '32px', borderRadius: '8px',
+            border: 'none', background: T.pillBg,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer', transition: 'background .15s', zIndex: 2,
+          }}
+          onMouseEnter={e => e.currentTarget.style.background = T.border}
+          onMouseLeave={e => e.currentTarget.style.background = T.pillBg}
+        >
+          <Icon.X size={14} color={T.textSub} />
+        </button>
+
+        {/* Header : icône + titre + message */}
+        <div style={{ padding: '36px 32px 24px', textAlign: 'center' }}>
+          <div style={{
+            width: '72px', height: '72px', borderRadius: '50%',
+            background: accentLight,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            margin: '0 auto 16px',
+            border: `2px solid ${accentColor}44`,
+          }}>
+            <div style={{
+              width: '56px', height: '56px', borderRadius: '50%',
+              background: accentColor,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              animation: 'iconPop .5s cubic-bezier(0.34, 1.56, 0.64, 1)',
+            }}>
+              <HeaderIcon size={28} color="#fff" />
+            </div>
+          </div>
+
+          <h2 style={{
+            fontSize: '20px', fontWeight: '700',
+            color: T.text, margin: '0 0 8px 0',
+            letterSpacing: '-0.3px',
+          }}>
+            {isSuccess ? 'Export réussi' : 'Erreur lors de l\'export'}
+          </h2>
+
+          <p style={{
+            fontSize: '13px', color: T.textSub, margin: 0,
+            lineHeight: 1.6, padding: '0 8px',
+          }}>
+            {isSuccess
+              ? 'Toutes les données ont été synchronisées avec MySQL avec succès.'
+              : (result.message || 'Une erreur est survenue. Veuillez réessayer.')}
+          </p>
+        </div>
+
+        {/* Grille des stats (uniquement si succès) */}
+        {isSuccess && stats.length > 0 && (
+          <div style={{
+            padding: '0 32px 24px',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: '10px',
+          }}>
+            {stats.map(stat => {
+              const IconComp = stat.icon
+              return (
+                <div key={stat.label} style={{
+                  background: T.bgSecond,
+                  border: `1px solid ${T.border}`,
+                  borderRadius: '10px',
+                  padding: '14px 10px',
+                  textAlign: 'center',
+                  transition: 'all .2s',
+                }}>
+                  <div style={{
+                    width: '36px', height: '36px', borderRadius: '8px',
+                    background: `${stat.color}22`,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    margin: '0 auto 8px',
+                  }}>
+                    <IconComp size={18} color={stat.color} />
+                  </div>
+                  <div style={{
+                    fontSize: '22px', fontWeight: '800',
+                    color: T.text, lineHeight: 1,
+                    letterSpacing: '-0.5px',
+                  }}>
+                    {stat.value}
+                  </div>
+                  <div style={{
+                    fontSize: '10px', fontWeight: '700',
+                    color: T.textMuted,
+                    textTransform: 'uppercase', letterSpacing: '0.6px',
+                    marginTop: '6px',
+                  }}>
+                    {stat.label}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+
+        {/* Indicateur base (uniquement si succès) */}
+        {isSuccess && (
+          <div style={{
+            padding: '14px 32px',
+            background: T.bgSecond,
+            borderTop: `1px solid ${T.border}`,
+            display: 'flex', alignItems: 'center', gap: '10px',
+          }}>
+            <Icon.Database size={18} color={T.textSub} />
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: '11px', fontWeight: '700', color: T.textMuted, textTransform: 'uppercase', letterSpacing: '0.6px' }}>
+                Base de destination
+              </div>
+              <div style={{ fontSize: '13px', fontWeight: '600', color: T.text, marginTop: '2px' }}>
+                MySQL · lab_platform
+              </div>
+            </div>
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: '5px',
+              fontSize: '10px', fontWeight: '700',
+              background: T.okLight, color: T.ok,
+              padding: '4px 10px', borderRadius: '20px',
+              textTransform: 'uppercase', letterSpacing: '0.5px',
+            }}>
+              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: T.ok }} />
+              Synchronisée
+            </div>
+          </div>
+        )}
+
+        {/* Footer : bouton OK */}
+        <div style={{
+          padding: '18px 32px',
+          borderTop: `1px solid ${T.border}`,
+          display: 'flex', justifyContent: 'flex-end',
+        }}>
+          <button
+            onClick={onClose}
+            onMouseEnter={e => e.currentTarget.style.background = T.orangeDark}
+            onMouseLeave={e => e.currentTarget.style.background = T.orange}
+            style={{
+              padding: '10px 28px', borderRadius: '8px', border: 'none',
+              background: T.orange, color: '#fff',
+              fontSize: '13px', fontWeight: '700',
+              cursor: 'pointer', fontFamily: FONT,
+              transition: 'background .15s',
+              letterSpacing: '0.3px',
+            }}
+          >
+            Terminé
+          </button>
+        </div>
+      </div>
+
+      {/* Animations CSS */}
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to   { opacity: 1; }
+        }
+        @keyframes modalIn {
+          from { opacity: 0; transform: translate(-50%, -48%) scale(0.92); }
+          to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+        @keyframes iconPop {
+          0%   { transform: scale(0); }
+          60%  { transform: scale(1.15); }
+          100% { transform: scale(1); }
+        }
+      `}</style>
+    </>
+  )
+}
+
+/* ─────────────────────────────────────────
    NAVBAR ADMIN avec liens + toggle dark
 ───────────────────────────────────────── */
 function NavbarAdmin({ user, onDeconnexion, onExportMySQL, exportLoading, navigate, dark, onToggleDark, T }) {
   const [hovLogout, setHovLogout] = useState(false)
   const [hovExport, setHovExport] = useState(false)
-  const [hovTheme, setHovTheme]   = useState(false)
-  const [hovLink, setHovLink]     = useState(null)
+  const [hovTheme, setHovTheme] = useState(false)
+  const [hovLink, setHovLink] = useState(null)
   const currentPath = window.location.pathname
 
   const links = [
     { label: 'Utilisateurs', path: '/admin' },
-    { label: 'Parcours',     path: '/admin/gestion' },
+    { label: 'Parcours', path: '/admin/gestion' },
   ]
 
   return (
@@ -140,29 +428,45 @@ function NavbarAdmin({ user, onDeconnexion, onExportMySQL, exportLoading, naviga
       transition: 'background .3s, border-color .3s',
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '36px' }}>
-        {/* Logo */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => navigate('/admin')}>
-          <div style={{ width: '34px', height: '34px', borderRadius: '6px', background: T.logoIcon, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background .3s' }}>
+          {/* <div style={{ width: '34px', height: '34px', borderRadius: '6px', background: T.logoIcon, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background .3s' }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
               <rect x="5" y="5" width="14" height="14" rx="2" stroke={dark ? '#1A1A1A' : '#FFFFFF'} strokeWidth="2"/>
               <path d="M9 12h6M12 9v6" stroke={dark ? '#1A1A1A' : '#FFFFFF'} strokeWidth="2" strokeLinecap="round"/>
             </svg>
+          </div> */}
+          <div style={{
+            width: '40px',
+            height: '40px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+          }}>
+            <img
+              src={logo}
+              alt="logo"
+              style={{
+                width: '140%',
+                height: '140%',
+                objectFit: 'contain'
+              }}
+            />
           </div>
           <div style={{ lineHeight: 1 }}>
             <div style={{ fontSize: '15px', fontWeight: '700', color: T.logoText, fontFamily: FONT, transition: 'color .3s' }}>
               Lab<span style={{ color: T.orange }}>Platform</span>
             </div>
             <div style={{ fontSize: '10px', color: T.textMuted, marginTop: '2px', fontFamily: FONT }}>
-              Administration · Orange
+              Administration · Learneo
             </div>
           </div>
         </div>
 
-        {/* Liens */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
           {links.map(link => {
             const isActive = currentPath === link.path
-            const isHov    = hovLink === link.path
+            const isHov = hovLink === link.path
             return (
               <button key={link.path} onClick={() => navigate(link.path)}
                 onMouseEnter={() => setHovLink(link.path)} onMouseLeave={() => setHovLink(null)}
@@ -180,9 +484,7 @@ function NavbarAdmin({ user, onDeconnexion, onExportMySQL, exportLoading, naviga
         </div>
       </div>
 
-      {/* Droite */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        {/* Bouton Export */}
         <button
           onClick={onExportMySQL}
           disabled={exportLoading}
@@ -204,7 +506,6 @@ function NavbarAdmin({ user, onDeconnexion, onExportMySQL, exportLoading, naviga
           {exportLoading ? 'Export...' : 'Export Data'}
         </button>
 
-        {/* Toggle dark/light */}
         <button
           onClick={onToggleDark}
           onMouseEnter={() => setHovTheme(true)}
@@ -222,13 +523,11 @@ function NavbarAdmin({ user, onDeconnexion, onExportMySQL, exportLoading, naviga
 
         <div style={{ width: '1px', height: '22px', background: T.border }} />
 
-        {/* Avatar admin */}
         <div style={{ width: '30px', height: '30px', borderRadius: '50%', background: T.avatarBg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: '700', color: '#fff', fontFamily: FONT, transition: 'background .3s' }}>
           {initiales(user?.nom)}
         </div>
         <span style={{ fontSize: '13px', fontWeight: '500', color: T.text, fontFamily: FONT }}>{user?.nom}</span>
 
-        {/* Déconnexion */}
         <button onClick={onDeconnexion} onMouseEnter={() => setHovLogout(true)} onMouseLeave={() => setHovLogout(false)}
           style={{
             display: 'flex', alignItems: 'center', gap: '6px',
@@ -271,7 +570,7 @@ function Breadcrumb({ items, T }) {
 function StatsRow({ users, T }) {
   const usersAvecSessions = users.filter(u => u.total_labs > 0)
   const items = [
-    { lbl: 'Utilisateurs',        val: users.length,             sub: 'Comptes enregistrés' },
+    { lbl: 'Utilisateurs', val: users.length, sub: 'Comptes enregistrés' },
     { lbl: 'Utilisateurs actifs', val: usersAvecSessions.length, sub: 'Apprenants en activité' },
   ]
   return (
@@ -334,16 +633,17 @@ function UserRow({ u, index, formatDate, onDetail, T }) {
    COMPOSANT PRINCIPAL
 ───────────────────────────────────────── */
 function Admin() {
-  const [users, setUsers]               = useState([])
-  const [loading, setLoading]           = useState(true)
-  const [recherche, setRecherche]       = useState('')
+  const [users, setUsers] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [recherche, setRecherche] = useState('')
   const [exportLoading, setExportLoading] = useState(false)
-  const [dark, setDark]                 = useState(() => localStorage.getItem('theme_admin') === 'dark')
-  const navigate                        = useNavigate()
+  const [exportResult, setExportResult] = useState(null)  // ← NOUVEAU : popup modal
+  const [dark, setDark] = useState(() => localStorage.getItem('theme_admin') === 'dark')
+  const navigate = useNavigate()
 
   const token = localStorage.getItem('token')
-  const user  = JSON.parse(localStorage.getItem('user'))
-  const T     = getTheme(dark)
+  const user = JSON.parse(localStorage.getItem('user'))
+  const T = getTheme(dark)
 
   function toggleDark() {
     setDark(d => {
@@ -355,9 +655,17 @@ function Admin() {
 
   useEffect(() => { chargerUsers() }, [])
 
+  // Fermer modal avec la touche Escape
+  useEffect(() => {
+    if (!exportResult) return
+    const handleEsc = e => { if (e.key === 'Escape') setExportResult(null) }
+    window.addEventListener('keydown', handleEsc)
+    return () => window.removeEventListener('keydown', handleEsc)
+  }, [exportResult])
+
   async function chargerUsers() {
     try {
-      const res  = await fetch('http://localhost:5000/api/admin/users', { headers: { Authorization: `Bearer ${token}` } })
+      const res = await fetch('http://localhost:5000/api/admin/users', { headers: { Authorization: `Bearer ${token}` } })
       const data = await res.json()
       setUsers(data)
       setLoading(false)
@@ -367,12 +675,29 @@ function Admin() {
   async function exportMySQL() {
     setExportLoading(true)
     try {
-      const res  = await fetch('http://localhost:5000/api/admin/export-mysql', { method: 'POST', headers: { Authorization: `Bearer ${token}` } })
+      const res = await fetch('http://localhost:5000/api/admin/export-mysql', { method: 'POST', headers: { Authorization: `Bearer ${token}` } })
       const data = await res.json()
-      alert(`${data.message}\n\nUsers exportés   : ${data.stats.users}\nLabs exportés    : ${data.stats.labs}\nSessions exportées: ${data.stats.sessions}`)
+
+      if (res.ok) {
+        // ✅ Succès → affiche le popup de succès avec les stats
+        setExportResult({
+          type: 'success',
+          message: data.message,
+          stats: data.stats,
+        })
+      } else {
+        // ❌ Erreur serveur → popup d'erreur
+        setExportResult({
+          type: 'error',
+          message: data.message || 'Une erreur est survenue lors de l\'export',
+        })
+      }
     } catch (err) {
       console.log(err)
-      alert('Erreur lors de l\'export !')
+      setExportResult({
+        type: 'error',
+        message: 'Impossible de contacter le serveur. Vérifiez votre connexion.',
+      })
     }
     setExportLoading(false)
   }
@@ -484,6 +809,14 @@ function Admin() {
           </>
         )}
       </div>
+
+      {/* Modal de résultat export */}
+      <ExportResultModal
+        result={exportResult}
+        onClose={() => setExportResult(null)}
+        T={T}
+        dark={dark}
+      />
     </div>
   )
 }
