@@ -1,32 +1,32 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-
+import logo from '../img/logo.png'
 const C = {
-  orange:      '#FF7900',
-  orangeDark:  '#E05C00',
+  orange: '#FF7900',
+  orangeDark: '#E05C00',
   orangeLight: '#FFF3E8',
-  black:       '#1A1A1A',
-  darkGray:    '#333333',
-  midGray:     '#595959',
-  lightGray:   '#F4F4F4',
-  border:      '#E0E0E0',
-  white:       '#FFFFFF',
-  bg:          '#F2F2F2',
-  err:         '#C62828',
-  errLight:    '#FFEBEE',
+  black: '#1A1A1A',
+  darkGray: '#333333',
+  midGray: '#595959',
+  lightGray: '#F4F4F4',
+  border: '#E0E0E0',
+  white: '#FFFFFF',
+  bg: '#F2F2F2',
+  err: '#C62828',
+  errLight: '#FFEBEE',
 }
 
 const FONT = "'Helvetica Neue', Helvetica, Arial, sans-serif"
 
 function Register() {
-  const [nom, setNom]               = useState('')
-  const [email, setEmail]           = useState('')
+  const [nom, setNom] = useState('')
+  const [email, setEmail] = useState('')
   const [motDePasse, setMotDePasse] = useState('')
-  const [erreur, setErreur]         = useState('')
-  const [loading, setLoading]       = useState(false)
-  const [focusNom, setFocusNom]     = useState(false)
+  const [erreur, setErreur] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [focusNom, setFocusNom] = useState(false)
   const [focusEmail, setFocusEmail] = useState(false)
-  const [focusPass, setFocusPass]   = useState(false)
+  const [focusPass, setFocusPass] = useState(false)
   const navigate = useNavigate()
 
   async function handleRegister(e) {
@@ -34,7 +34,7 @@ function Register() {
     setLoading(true)
     setErreur('')
     try {
-      const res  = await fetch('http://localhost:5000/api/auth/register', {
+      const res = await fetch('http://localhost:5000/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nom, email, mot_de_passe: motDePasse }),
@@ -82,16 +82,8 @@ function Register() {
         {/* Logo */}
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '48px' }}>
-            <div style={{
-              width: '36px', height: '36px', borderRadius: '6px',
-              background: C.orange, display: 'flex',
-              alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-            }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="12" r="8" stroke="white" strokeWidth="2"/>
-                <path d="M9 12l2 2 4-4" stroke="white" strokeWidth="2"
-                  strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
+            <div style={{ width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <img src={logo} alt="logo" style={{ width: '140%', height: '140%', objectFit: 'contain' }} />
             </div>
             <div style={{ lineHeight: 1 }}>
               <div style={{ fontSize: '16px', fontWeight: '700', color: C.white, fontFamily: FONT }}>
@@ -135,7 +127,7 @@ function Register() {
               }}>
                 <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
                   <path d="M2 6l3 3 5-5" stroke={C.orange} strokeWidth="1.5"
-                    strokeLinecap="round" strokeLinejoin="round"/>
+                    strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </div>
               <span style={{ fontSize: '12px', color: '#888', fontFamily: FONT }}>{txt}</span>
@@ -145,7 +137,7 @@ function Register() {
 
         {/* Footer */}
         <div style={{ fontSize: '11px', color: '#444', fontFamily: FONT }}>
-          © 2026 Learneo 
+          © 2026 Learneo
         </div>
       </div>
 
@@ -183,9 +175,9 @@ function Register() {
               display: 'flex', alignItems: 'center', gap: '8px',
             }}>
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                <circle cx="8" cy="8" r="6.25" stroke={C.err} strokeWidth="1.25"/>
+                <circle cx="8" cy="8" r="6.25" stroke={C.err} strokeWidth="1.25" />
                 <path d="M8 5v3.5M8 10.5v.5" stroke={C.err} strokeWidth="1.25"
-                  strokeLinecap="round"/>
+                  strokeLinecap="round" />
               </svg>
               <span style={{ fontSize: '13px', color: C.err, fontFamily: FONT }}>
                 {erreur}

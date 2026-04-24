@@ -1,60 +1,61 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import logo from '../img/logo.png'
 
 /* ─────────────────────────────────────────
    THÈME — light / dark (admin séparé du user)
 ───────────────────────────────────────── */
 function getTheme(dark) {
   return dark ? {
-    bg:          '#111318',
-    bgCard:      '#1E2128',
-    bgSecond:    '#1A1D24',
-    bgRowHov:    '#252830',
-    border:      '#2A2D37',
-    borderOk:    '#2E5C31',
-    borderErr:   '#5C2626',
-    text:        '#F0F0F0',
-    textSub:     '#9AA0B0',
-    textMuted:   '#5A6070',
-    orange:      '#FF7900',
-    orangeDark:  '#E05C00',
+    bg: '#111318',
+    bgCard: '#1E2128',
+    bgSecond: '#1A1D24',
+    bgRowHov: '#252830',
+    border: '#2A2D37',
+    borderOk: '#2E5C31',
+    borderErr: '#5C2626',
+    text: '#F0F0F0',
+    textSub: '#9AA0B0',
+    textMuted: '#5A6070',
+    orange: '#FF7900',
+    orangeDark: '#E05C00',
     orangeLight: 'rgba(255,121,0,0.12)',
-    ok:          '#4CAF50',
-    okLight:     'rgba(76,175,80,0.1)',
-    err:         '#EF5350',
-    errLight:    'rgba(239,83,80,0.1)',
-    navBg:       '#13151B',
-    pillBg:      '#2A2D37',
-    avatarBg:    '#FF7900',
-    etapeOkBg:   'rgba(76,175,80,0.08)',
-    etapeErrBg:  'rgba(239,83,80,0.08)',
-    monoBg:      'rgba(255,255,255,0.06)',
-    heroBg:      '#1A1D24',
+    ok: '#4CAF50',
+    okLight: 'rgba(76,175,80,0.1)',
+    err: '#EF5350',
+    errLight: 'rgba(239,83,80,0.1)',
+    navBg: '#13151B',
+    pillBg: '#2A2D37',
+    avatarBg: '#FF7900',
+    etapeOkBg: 'rgba(76,175,80,0.08)',
+    etapeErrBg: 'rgba(239,83,80,0.08)',
+    monoBg: 'rgba(255,255,255,0.06)',
+    heroBg: '#1A1D24',
   } : {
-    bg:          '#F2F2F2',
-    bgCard:      '#FFFFFF',
-    bgSecond:    '#FAFAFA',
-    bgRowHov:    '#F5F5F5',
-    border:      '#E0E0E0',
-    borderOk:    '#A5D6A7',
-    borderErr:   '#EF9A9A',
-    text:        '#1A1A1A',
-    textSub:     '#595959',
-    textMuted:   '#9E9E9E',
-    orange:      '#FF7900',
-    orangeDark:  '#E05C00',
+    bg: '#F2F2F2',
+    bgCard: '#FFFFFF',
+    bgSecond: '#FAFAFA',
+    bgRowHov: '#F5F5F5',
+    border: '#E0E0E0',
+    borderOk: '#A5D6A7',
+    borderErr: '#EF9A9A',
+    text: '#1A1A1A',
+    textSub: '#595959',
+    textMuted: '#9E9E9E',
+    orange: '#FF7900',
+    orangeDark: '#E05C00',
     orangeLight: '#FFF3E8',
-    ok:          '#2E7D32',
-    okLight:     '#E8F5E9',
-    err:         '#C62828',
-    errLight:    '#FFEBEE',
-    navBg:       '#FFFFFF',
-    pillBg:      '#F4F4F4',
-    avatarBg:    '#1A1A1A',
-    etapeOkBg:   'rgba(46,125,50,0.06)',
-    etapeErrBg:  'rgba(198,40,40,0.06)',
-    monoBg:      'rgba(0,0,0,0.04)',
-    heroBg:      '#FFFFFF',
+    ok: '#2E7D32',
+    okLight: '#E8F5E9',
+    err: '#C62828',
+    errLight: '#FFEBEE',
+    navBg: '#FFFFFF',
+    pillBg: '#F4F4F4',
+    avatarBg: '#1A1A1A',
+    etapeOkBg: 'rgba(46,125,50,0.06)',
+    etapeErrBg: 'rgba(198,40,40,0.06)',
+    monoBg: 'rgba(0,0,0,0.04)',
+    heroBg: '#FFFFFF',
   }
 }
 
@@ -68,54 +69,54 @@ const Icon = {
   Logout: ({ size = 14, color }) => (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
       <path d="M6.25 2.75H3.5a.75.75 0 0 0-.75.75v9a.75.75 0 0 0 .75.75h2.75"
-        stroke={color} strokeWidth="1.25" strokeLinecap="round"/>
+        stroke={color} strokeWidth="1.25" strokeLinecap="round" />
       <path d="M10.25 5.25l2.5 2.75-2.5 2.75M12.75 8H6.75"
-        stroke={color} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/>
+        stroke={color} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
   ChevronRight: ({ size = 12, color }) => (
     <svg width={size} height={size} viewBox="0 0 12 12" fill="none" style={{ flexShrink: 0 }}>
       <path d="M4.25 2.5L7.75 6l-3.5 3.5" stroke={color} strokeWidth="1.25"
-        strokeLinecap="round" strokeLinejoin="round"/>
+        strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
   Clock: ({ size = 13, color }) => (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
-      <circle cx="8" cy="8" r="6.25" stroke={color} strokeWidth="1.25"/>
+      <circle cx="8" cy="8" r="6.25" stroke={color} strokeWidth="1.25" />
       <path d="M8 4.75V8l2.25 1.5" stroke={color} strokeWidth="1.25"
-        strokeLinecap="round" strokeLinejoin="round"/>
+        strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
   Sun: ({ size = 16, color }) => (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
-      <circle cx="8" cy="8" r="3" stroke={color} strokeWidth="1.25"/>
+      <circle cx="8" cy="8" r="3" stroke={color} strokeWidth="1.25" />
       <path d="M8 1.5v1.25M8 13.25V14.5M1.5 8h1.25M13.25 8H14.5M3.4 3.4l.88.88M11.72 11.72l.88.88M11.72 4.28l-.88.88M4.28 11.72l-.88.88"
-        stroke={color} strokeWidth="1.25" strokeLinecap="round"/>
+        stroke={color} strokeWidth="1.25" strokeLinecap="round" />
     </svg>
   ),
   Moon: ({ size = 16, color }) => (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
       <path d="M13.5 9.5A6 6 0 0 1 6.5 2.5a6 6 0 1 0 7 7z"
-        stroke={color} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/>
+        stroke={color} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
   Users: ({ size = 14, color }) => (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
-      <circle cx="6" cy="5" r="2.25" stroke={color} strokeWidth="1.25"/>
+      <circle cx="6" cy="5" r="2.25" stroke={color} strokeWidth="1.25" />
       <path d="M1.5 13c0-2.5 2-4 4.5-4s4.5 1.5 4.5 4"
-        stroke={color} strokeWidth="1.25" strokeLinecap="round"/>
+        stroke={color} strokeWidth="1.25" strokeLinecap="round" />
       <path d="M11 3.5a2 2 0 0 1 0 3.5M13.5 13c0-2-1.3-3.5-3-3.8"
-        stroke={color} strokeWidth="1.25" strokeLinecap="round"/>
+        stroke={color} strokeWidth="1.25" strokeLinecap="round" />
     </svg>
   ),
   Layers: ({ size = 14, color }) => (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
       <path d="M2 5.5L8 2.5L14 5.5L8 8.5L2 5.5Z"
-        stroke={color} strokeWidth="1.25" strokeLinejoin="round"/>
+        stroke={color} strokeWidth="1.25" strokeLinejoin="round" />
       <path d="M2 10.5L8 13.5L14 10.5"
-        stroke={color} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/>
+        stroke={color} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
       <path d="M2 8L8 11L14 8"
-        stroke={color} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/>
+        stroke={color} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
 }
@@ -148,12 +149,12 @@ function formatDate(date) {
 ───────────────────────────────────────── */
 function NavbarAdmin({ user, dark, onToggleDark, onDeconnexion, T, navigate }) {
   const [hovLogout, setHovLogout] = useState(false)
-  const [hovTheme,  setHovTheme]  = useState(false)
+  const [hovTheme, setHovTheme] = useState(false)
   const currentPath = window.location.pathname
 
   const navLinks = [
     { label: 'Utilisateurs', path: '/admin' },
-    { label: 'Parcours',     path: '/admin/gestion' },
+    { label: 'Parcours', path: '/admin/gestion' },
   ]
 
   return (
@@ -170,7 +171,10 @@ function NavbarAdmin({ user, dark, onToggleDark, onDeconnexion, T, navigate }) {
       {/* Logo + Liens */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{
+          <div style={{ width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <img src={logo} alt="logo" style={{ width: '140%', height: '140%', objectFit: 'contain' }} />
+          </div>
+          {/* <div style={{
             width: '34px', height: '34px', borderRadius: '6px',
             background: dark ? '#F0F0F0' : '#1A1A1A',
             display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
@@ -182,7 +186,7 @@ function NavbarAdmin({ user, dark, onToggleDark, onDeconnexion, T, navigate }) {
               <path d="M9 12h6M12 9v6"
                 stroke={dark ? '#1A1A1A' : 'white'} strokeWidth="2" strokeLinecap="round"/>
             </svg>
-          </div>
+          </div> */}
           <div style={{ lineHeight: 1 }}>
             <div style={{
               fontSize: '15px', fontWeight: '700',
@@ -246,7 +250,7 @@ function NavbarAdmin({ user, dark, onToggleDark, onDeconnexion, T, navigate }) {
           }}
         >
           {dark
-            ? <Icon.Sun  size={16} color={T.orange} />
+            ? <Icon.Sun size={16} color={T.orange} />
             : <Icon.Moon size={16} color={T.textSub} />
           }
         </button>
@@ -328,9 +332,9 @@ function Breadcrumb({ items, T }) {
    CARD TENTATIVE
 ───────────────────────────────────────── */
 function TentativeCard({ session, index, total, T }) {
-  const reussi      = session.reussi
-  const etapes      = session.etapes || []
-  const numero      = total - index
+  const reussi = session.reussi
+  const etapes = session.etapes || []
+  const numero = total - index
 
   return (
     <div style={{
@@ -471,19 +475,19 @@ function TentativeCard({ session, index, total, T }) {
 ───────────────────────────────────────── */
 function AdminTentatives() {
   const [sessions, setSessions] = useState([])
-  const [user, setUser]         = useState(null)
+  const [user, setUser] = useState(null)
   const [labTitre, setLabTitre] = useState('')
-  const [loading, setLoading]   = useState(true)
-  const [dark, setDark]         = useState(() => {
+  const [loading, setLoading] = useState(true)
+  const [dark, setDark] = useState(() => {
     const saved = localStorage.getItem('theme_admin')
     return saved ? saved === 'dark' : false
   })
 
   const navigate = useNavigate()
   const { id, labId } = useParams()
-  const token  = localStorage.getItem('token')
-  const admin  = JSON.parse(localStorage.getItem('user'))
-  const T      = getTheme(dark)
+  const token = localStorage.getItem('token')
+  const admin = JSON.parse(localStorage.getItem('user'))
+  const T = getTheme(dark)
 
   function toggleDark() {
     setDark(d => {
@@ -497,7 +501,7 @@ function AdminTentatives() {
 
   async function chargerDonnees() {
     try {
-      const res  = await fetch(`http://localhost:5000/api/admin/users/${id}`, {
+      const res = await fetch(`http://localhost:5000/api/admin/users/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       const data = await res.json()
@@ -534,8 +538,8 @@ function AdminTentatives() {
   )
 
   /* Stats rapides */
-  const reussites  = sessions.filter(s => s.reussi).length
-  const taux       = sessions.length > 0
+  const reussites = sessions.filter(s => s.reussi).length
+  const taux = sessions.length > 0
     ? Math.round((reussites / sessions.length) * 100) : 0
   const tempsMoyen = sessions.length > 0
     ? Math.round(sessions.reduce((a, s) => a + (s.temps_passe || 0), 0) / sessions.length) : 0
@@ -556,8 +560,8 @@ function AdminTentatives() {
       />
       <Breadcrumb
         items={[
-          { label: 'Utilisateurs',  onClick: () => navigate('/admin') },
-          { label: user?.nom,       onClick: () => navigate(`/admin/user/${id}`) },
+          { label: 'Utilisateurs', onClick: () => navigate('/admin') },
+          { label: user?.nom, onClick: () => navigate(`/admin/user/${id}`) },
           { label: labTitre },
         ]}
         T={T}
@@ -595,7 +599,7 @@ function AdminTentatives() {
           {/* KPIs */}
           <div style={{ display: 'flex', gap: '28px' }}>
             {[
-              { val: reussites,               lbl: 'Réussies',    color: T.ok },
+              { val: reussites, lbl: 'Réussies', color: T.ok },
               {
                 val: `${taux}%`,
                 lbl: 'Taux',

@@ -1,42 +1,42 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-
+import logo from '../img/logo.png'
 /* ─────────────────────────────────────────
    THÈME
 ───────────────────────────────────────── */
 function getTheme(dark) {
   return dark ? {
-    bg:          '#0F1117',
-    bgCard:      '#1A1D24',
-    border:      '#2A2D3A',
-    text:        '#F0F0F0',
-    textSub:     '#9AA0B0',
-    textMuted:   '#4A5060',
-    orange:      '#FF7900',
-    orangeDark:  '#E05C00',
+    bg: '#0F1117',
+    bgCard: '#1A1D24',
+    border: '#2A2D3A',
+    text: '#F0F0F0',
+    textSub: '#9AA0B0',
+    textMuted: '#4A5060',
+    orange: '#FF7900',
+    orangeDark: '#E05C00',
     orangeLight: 'rgba(255,121,0,0.15)',
-    ok:          '#4CAF50',
-    okLight:     'rgba(76,175,80,0.15)',
-    navBg:       '#0A0C12',
-    pillBg:      '#22252F',
-    lockedText:  '#4A5060',
-    calBorder:   '#F0F0F0',
+    ok: '#4CAF50',
+    okLight: 'rgba(76,175,80,0.15)',
+    navBg: '#0A0C12',
+    pillBg: '#22252F',
+    lockedText: '#4A5060',
+    calBorder: '#F0F0F0',
   } : {
-    bg:          '#F4F4F4',
-    bgCard:      '#FFFFFF',
-    border:      '#E4E4E4',
-    text:        '#1A1A1A',
-    textSub:     '#595959',
-    textMuted:   '#9E9E9E',
-    orange:      '#FF7900',
-    orangeDark:  '#E05C00',
+    bg: '#F4F4F4',
+    bgCard: '#FFFFFF',
+    border: '#E4E4E4',
+    text: '#1A1A1A',
+    textSub: '#595959',
+    textMuted: '#9E9E9E',
+    orange: '#FF7900',
+    orangeDark: '#E05C00',
     orangeLight: '#FFF3E8',
-    ok:          '#2E7D32',
-    okLight:     '#E8F5E9',
-    navBg:       '#FFFFFF',
-    pillBg:      '#F4F4F4',
-    lockedText:  '#BDBDBD',
-    calBorder:   '#1A1A1A',
+    ok: '#2E7D32',
+    okLight: '#E8F5E9',
+    navBg: '#FFFFFF',
+    pillBg: '#F4F4F4',
+    lockedText: '#BDBDBD',
+    calBorder: '#1A1A1A',
   }
 }
 
@@ -48,57 +48,57 @@ const FONT = "'Helvetica Neue', Helvetica, Arial, sans-serif"
 const Icon = {
   Check: ({ size = 14, color = '#fff' }) => (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
-      <circle cx="8" cy="8" r="6.25" stroke={color} strokeWidth="1.25"/>
-      <path d="M5.25 8.25l2 2 3.5-4" stroke={color} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/>
+      <circle cx="8" cy="8" r="6.25" stroke={color} strokeWidth="1.25" />
+      <path d="M5.25 8.25l2 2 3.5-4" stroke={color} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
   Logout: ({ size = 14, color }) => (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
-      <path d="M6.25 2.75H3.5a.75.75 0 0 0-.75.75v9a.75.75 0 0 0 .75.75h2.75" stroke={color} strokeWidth="1.25" strokeLinecap="round"/>
-      <path d="M10.25 5.25l2.5 2.75-2.5 2.75M12.75 8H6.75" stroke={color} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M6.25 2.75H3.5a.75.75 0 0 0-.75.75v9a.75.75 0 0 0 .75.75h2.75" stroke={color} strokeWidth="1.25" strokeLinecap="round" />
+      <path d="M10.25 5.25l2.5 2.75-2.5 2.75M12.75 8H6.75" stroke={color} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
   Sun: ({ size = 16, color }) => (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
-      <circle cx="8" cy="8" r="3" stroke={color} strokeWidth="1.25"/>
-      <path d="M8 1.5v1.25M8 13.25V14.5M1.5 8h1.25M13.25 8H14.5M3.4 3.4l.88.88M11.72 11.72l.88.88M11.72 4.28l-.88.88M4.28 11.72l-.88.88" stroke={color} strokeWidth="1.25" strokeLinecap="round"/>
+      <circle cx="8" cy="8" r="3" stroke={color} strokeWidth="1.25" />
+      <path d="M8 1.5v1.25M8 13.25V14.5M1.5 8h1.25M13.25 8H14.5M3.4 3.4l.88.88M11.72 11.72l.88.88M11.72 4.28l-.88.88M4.28 11.72l-.88.88" stroke={color} strokeWidth="1.25" strokeLinecap="round" />
     </svg>
   ),
   Moon: ({ size = 16, color }) => (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
-      <path d="M13.5 9.5A6 6 0 0 1 6.5 2.5a6 6 0 1 0 7 7z" stroke={color} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M13.5 9.5A6 6 0 0 1 6.5 2.5a6 6 0 1 0 7 7z" stroke={color} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
   Lock: ({ size = 18, color }) => (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
-      <rect x="3.25" y="7.75" width="9.5" height="6.5" rx="1.25" stroke={color} strokeWidth="1.25"/>
-      <path d="M5.5 7.75V5.25a2.5 2.5 0 0 1 5 0v2.5" stroke={color} strokeWidth="1.25" strokeLinecap="round"/>
+      <rect x="3.25" y="7.75" width="9.5" height="6.5" rx="1.25" stroke={color} strokeWidth="1.25" />
+      <path d="M5.5 7.75V5.25a2.5 2.5 0 0 1 5 0v2.5" stroke={color} strokeWidth="1.25" strokeLinecap="round" />
     </svg>
   ),
   Calendar: ({ size = 13, color }) => (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
-      <rect x="1.5" y="3" width="13" height="11.5" rx="1.5" stroke={color} strokeWidth="1.25"/>
-      <path d="M1.5 7h13M5 1.5v3M11 1.5v3" stroke={color} strokeWidth="1.25" strokeLinecap="round"/>
+      <rect x="1.5" y="3" width="13" height="11.5" rx="1.5" stroke={color} strokeWidth="1.25" />
+      <path d="M1.5 7h13M5 1.5v3M11 1.5v3" stroke={color} strokeWidth="1.25" strokeLinecap="round" />
     </svg>
   ),
   Folder: ({ size = 32, color }) => (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
-      <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" stroke={color} strokeWidth="1.5" strokeLinejoin="round"/>
+      <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" stroke={color} strokeWidth="1.5" strokeLinejoin="round" />
     </svg>
   ),
   ArrowRight: ({ size = 14, color }) => (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
-      <path d="M3 8h10M9 4l4 4-4 4" stroke={color} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M3 8h10M9 4l4 4-4 4" stroke={color} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
   ChevLeft: ({ size = 22, color }) => (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
-      <path d="M15 6l-6 6 6 6" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M15 6l-6 6 6 6" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
   ChevRight: ({ size = 22, color }) => (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
-      <path d="M9 6l6 6-6 6" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M9 6l6 6-6 6" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
 }
@@ -106,8 +106,8 @@ const Icon = {
 /* ─────────────────────────────────────────
    HELPERS
 ───────────────────────────────────────── */
-const CAT_COLORS = ['#FF7900','#5C6BC0','#26A69A','#EF5350','#AB47BC','#42A5F5']
-const initiales  = nom => {
+const CAT_COLORS = ['#FF7900', '#5C6BC0', '#26A69A', '#EF5350', '#AB47BC', '#42A5F5']
+const initiales = nom => {
   if (!nom) return 'US'
   const p = nom.trim().split(' ')
   return p.length >= 2 ? (p[0][0] + p[1][0]).toUpperCase() : nom.slice(0, 2).toUpperCase()
@@ -122,19 +122,19 @@ function formatDate(date) {
 ───────────────────────────────────────── */
 function NavLinks({ T, navigate }) {
   const [hov, setHov] = useState(null)
-  const currentPath   = window.location.pathname
+  const currentPath = window.location.pathname
 
   const links = [
-    { label: 'Accueil',  path: '/' },
+    { label: 'Accueil', path: '/' },
     { label: 'Mes Labs', path: '/labs' },
-    { label: 'Profil',   path: '/profil' },
+    { label: 'Profil', path: '/profil' },
   ]
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
       {links.map(link => {
         const isActive = currentPath === link.path
-        const isHov    = hov === link.path
+        const isHov = hov === link.path
         return (
           <button
             key={link.path}
@@ -168,7 +168,7 @@ function NavLinks({ T, navigate }) {
 ───────────────────────────────────────── */
 function Navbar({ user, dark, onToggleDark, onDeconnexion, T }) {
   const [hovLogout, setHovLogout] = useState(false)
-  const [hovTheme,  setHovTheme]  = useState(false)
+  const [hovTheme, setHovTheme] = useState(false)
   const navigate = useNavigate()
 
   return (
@@ -181,8 +181,11 @@ function Navbar({ user, dark, onToggleDark, onDeconnexion, T }) {
       <div style={{ display: 'flex', alignItems: 'center', gap: '36px' }}>
         {/* Logo */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => navigate('/')}>
-          <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: T.orange, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          {/* <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: T.orange, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Icon.Check size={15} color="#fff" />
+          </div> */}
+          <div style={{ width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <img src={logo} alt="logo" style={{ width: '140%', height: '140%', objectFit: 'contain' }} />
           </div>
           <div style={{ lineHeight: 1 }}>
             <div style={{ fontSize: '15px', fontWeight: '700', color: T.text, fontFamily: FONT }}>
@@ -220,15 +223,15 @@ function Navbar({ user, dark, onToggleDark, onDeconnexion, T }) {
    HERO CARD (première card du slider)
 ───────────────────────────────────────── */
 function HeroCard({ categories, T, dark }) {
-  const totalLabs    = categories.reduce((s, c) => s + c.totalLabs, 0)
+  const totalLabs = categories.reduce((s, c) => s + c.totalLabs, 0)
   const totalReussis = categories.reduce((s, c) => s + c.labsReussis, 0)
 
   // Palette — sombre en dark, gris pro en light (pas blanc, pas dark)
   const bgGradient = dark
     ? 'linear-gradient(135deg, #0F1520 0%, #141B2E 50%, #0A1218 100%)'
     : 'linear-gradient(135deg, #2A2E3A 0%, #1E2330 50%, #151820 100%)'
-  const textMain  = '#FFFFFF'
-  const textSub   = 'rgba(255,255,255,0.5)'
+  const textMain = '#FFFFFF'
+  const textSub = 'rgba(255,255,255,0.5)'
 
   return (
     <div style={{
@@ -281,7 +284,7 @@ function HeroCard({ categories, T, dark }) {
       <div style={{ position: 'relative', display: 'flex', gap: '40px' }}>
         {[
           { val: totalReussis, lbl: 'terminés' },
-          { val: totalLabs,    lbl: 'disponibles' },
+          { val: totalLabs, lbl: 'disponibles' },
         ].map(s => (
           <div key={s.lbl}>
             <div style={{ fontSize: '32px', fontWeight: '800', color: textMain, fontFamily: FONT, letterSpacing: '-0.8px' }}>{s.val}</div>
@@ -298,8 +301,8 @@ function HeroCard({ categories, T, dark }) {
 ───────────────────────────────────────── */
 function CategorieCard({ cat, index, navigate, T }) {
   const [hovered, setHovered] = useState(false)
-  const color  = CAT_COLORS[index % CAT_COLORS.length]
-  const taux   = cat.tauxCategorie ?? 0
+  const color = CAT_COLORS[index % CAT_COLORS.length]
+  const taux = cat.tauxCategorie ?? 0
   const locked = !cat.estOuverte
 
   return (
@@ -388,12 +391,12 @@ function CategorieCard({ cat, index, navigate, T }) {
    SCROLLER PRINCIPAL (hero + catégories)
 ───────────────────────────────────────── */
 function MainScroller({ categories, navigate, T, dark }) {
-  const scrollRef  = useRef(null)
-  const [pos,       setPos]       = useState(0)
-  const [canLeft,   setCanLeft]   = useState(false)
-  const [canRight,  setCanRight]  = useState(false)
-  const [hover,     setHover]     = useState(false)
-  const [paused,    setPaused]    = useState(false)
+  const scrollRef = useRef(null)
+  const [pos, setPos] = useState(0)
+  const [canLeft, setCanLeft] = useState(false)
+  const [canRight, setCanRight] = useState(false)
+  const [hover, setHover] = useState(false)
+  const [paused, setPaused] = useState(false)
   const totalItems = 1 + categories.length
 
   function checkScroll() {
@@ -615,7 +618,7 @@ function Calendrier({ categories, T, dark }) {
 
           {categoriesTriees.map(cat => {
             const estOuverte = cat.estOuverte
-            const label      = getLabel(cat)
+            const label = getLabel(cat)
 
             return (
               <div key={cat.nom} style={{ display: 'flex', gap: '18px', marginBottom: '28px' }}>
@@ -677,12 +680,12 @@ function Calendrier({ categories, T, dark }) {
 ───────────────────────────────────────── */
 function HomePage() {
   const [categories, setCategories] = useState([])
-  const [loading, setLoading]       = useState(true)
-  const [dark, setDark]             = useState(() => localStorage.getItem('theme') === 'dark')
+  const [loading, setLoading] = useState(true)
+  const [dark, setDark] = useState(() => localStorage.getItem('theme') === 'dark')
 
   const navigate = useNavigate()
-  const user     = JSON.parse(localStorage.getItem('user'))
-  const T        = getTheme(dark)
+  const user = JSON.parse(localStorage.getItem('user'))
+  const T = getTheme(dark)
 
   function toggleDark() {
     setDark(d => { const next = !d; localStorage.setItem('theme', next ? 'dark' : 'light'); return next })
@@ -696,7 +699,7 @@ function HomePage() {
 
   async function chargerCategories() {
     try {
-      const res  = await fetch('http://localhost:5000/api/labs/categories', {
+      const res = await fetch('http://localhost:5000/api/labs/categories', {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       })
       const data = await res.json()

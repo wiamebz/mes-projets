@@ -4,31 +4,31 @@ import { Terminal } from 'xterm'
 import { FitAddon } from 'xterm-addon-fit'
 import { io } from 'socket.io-client'
 import 'xterm/css/xterm.css'
-
+import logo from '../img/logo.png'
 /* ─────────────────────────────────────────
    THÈME
 ───────────────────────────────────────── */
 function getTheme(dark) {
   return dark ? {
-    bg:'#111318', bgSecond:'#1A1D24', bgCard:'#1E2128', border:'#2A2D37',
-    text:'#F0F0F0', textSub:'#9AA0B0', textMuted:'#5A6070',
-    orange:'#FF7900', orangeDark:'#E05C00', orangeLight:'rgba(255,121,0,0.12)',
-    ok:'#4CAF50', okLight:'rgba(76,175,80,0.12)',
-    err:'#EF5350', errLight:'rgba(239,83,80,0.12)',
-    navBg:'#13151B', statBg:'#1A1D24', pillBg:'#2A2D37',
+    bg: '#111318', bgSecond: '#1A1D24', bgCard: '#1E2128', border: '#2A2D37',
+    text: '#F0F0F0', textSub: '#9AA0B0', textMuted: '#5A6070',
+    orange: '#FF7900', orangeDark: '#E05C00', orangeLight: 'rgba(255,121,0,0.12)',
+    ok: '#4CAF50', okLight: 'rgba(76,175,80,0.12)',
+    err: '#EF5350', errLight: 'rgba(239,83,80,0.12)',
+    navBg: '#13151B', statBg: '#1A1D24', pillBg: '#2A2D37',
   } : {
-    bg:'#F2F2F2', bgSecond:'#EAEAEA', bgCard:'#FFFFFF', border:'#E0E0E0',
-    text:'#1A1A1A', textSub:'#595959', textMuted:'#9E9E9E',
-    orange:'#FF7900', orangeDark:'#E05C00', orangeLight:'#FFF3E8',
-    ok:'#2E7D32', okLight:'#E8F5E9',
-    err:'#C62828', errLight:'#FFEBEE',
-    navBg:'#FFFFFF', statBg:'#FFFFFF', pillBg:'#F4F4F4',
+    bg: '#F2F2F2', bgSecond: '#EAEAEA', bgCard: '#FFFFFF', border: '#E0E0E0',
+    text: '#1A1A1A', textSub: '#595959', textMuted: '#9E9E9E',
+    orange: '#FF7900', orangeDark: '#E05C00', orangeLight: '#FFF3E8',
+    ok: '#2E7D32', okLight: '#E8F5E9',
+    err: '#C62828', errLight: '#FFEBEE',
+    navBg: '#FFFFFF', statBg: '#FFFFFF', pillBg: '#F4F4F4',
   }
 }
 
 const FONT = "'Helvetica Neue', Helvetica, Arial, sans-serif"
 const MONO = "'SF Mono', 'Fira Code', 'Courier New', monospace"
-const CAT_COLORS = ['#FF7900','#5C6BC0','#26A69A','#EF5350','#AB47BC','#42A5F5']
+const CAT_COLORS = ['#FF7900', '#5C6BC0', '#26A69A', '#EF5350', '#AB47BC', '#42A5F5']
 const LAB_DURATION_SECONDS = 30 * 60 // 30 minutes
 
 /* ─────────────────────────────────────────
@@ -37,86 +37,86 @@ const LAB_DURATION_SECONDS = 30 * 60 // 30 minutes
 const Icon = {
   Check: ({ size = 14, color = '#fff' }) => (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
-      <circle cx="8" cy="8" r="6.25" stroke={color} strokeWidth="1.25"/>
-      <path d="M5.25 8.25l2 2 3.5-4" stroke={color} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/>
+      <circle cx="8" cy="8" r="6.25" stroke={color} strokeWidth="1.25" />
+      <path d="M5.25 8.25l2 2 3.5-4" stroke={color} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
   Lock: ({ size = 14, color }) => (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
-      <rect x="3.25" y="7.75" width="9.5" height="6.5" rx="1.25" stroke={color} strokeWidth="1.25"/>
-      <path d="M5.5 7.75V5.25a2.5 2.5 0 0 1 5 0v2.5" stroke={color} strokeWidth="1.25" strokeLinecap="round"/>
+      <rect x="3.25" y="7.75" width="9.5" height="6.5" rx="1.25" stroke={color} strokeWidth="1.25" />
+      <path d="M5.5 7.75V5.25a2.5 2.5 0 0 1 5 0v2.5" stroke={color} strokeWidth="1.25" strokeLinecap="round" />
     </svg>
   ),
   Clock: ({ size = 13, color }) => (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
-      <circle cx="8" cy="8" r="6.25" stroke={color} strokeWidth="1.25"/>
-      <path d="M8 4.75V8l2.25 1.5" stroke={color} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/>
+      <circle cx="8" cy="8" r="6.25" stroke={color} strokeWidth="1.25" />
+      <path d="M8 4.75V8l2.25 1.5" stroke={color} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
   Logout: ({ size = 14, color }) => (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
-      <path d="M6.25 2.75H3.5a.75.75 0 0 0-.75.75v9a.75.75 0 0 0 .75.75h2.75" stroke={color} strokeWidth="1.25" strokeLinecap="round"/>
-      <path d="M10.25 5.25l2.5 2.75-2.5 2.75M12.75 8H6.75" stroke={color} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M6.25 2.75H3.5a.75.75 0 0 0-.75.75v9a.75.75 0 0 0 .75.75h2.75" stroke={color} strokeWidth="1.25" strokeLinecap="round" />
+      <path d="M10.25 5.25l2.5 2.75-2.5 2.75M12.75 8H6.75" stroke={color} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
   Terminal: ({ size = 14, color }) => (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
-      <rect x="1.75" y="2.75" width="12.5" height="10.5" rx="1.5" stroke={color} strokeWidth="1.25"/>
-      <path d="M4.5 6.25l2.75 1.75-2.75 1.75M8.75 9.75H11.5" stroke={color} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/>
+      <rect x="1.75" y="2.75" width="12.5" height="10.5" rx="1.5" stroke={color} strokeWidth="1.25" />
+      <path d="M4.5 6.25l2.75 1.75-2.75 1.75M8.75 9.75H11.5" stroke={color} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
   Stop: ({ size = 14, color = '#fff' }) => (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
-      <rect x="4.25" y="4.25" width="7.5" height="7.5" rx="1.25" stroke={color} strokeWidth="1.25"/>
+      <rect x="4.25" y="4.25" width="7.5" height="7.5" rx="1.25" stroke={color} strokeWidth="1.25" />
     </svg>
   ),
   Sun: ({ size = 16, color }) => (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
-      <circle cx="8" cy="8" r="3" stroke={color} strokeWidth="1.25"/>
-      <path d="M8 1.5v1.25M8 13.25V14.5M1.5 8h1.25M13.25 8H14.5M3.4 3.4l.88.88M11.72 11.72l.88.88M11.72 4.28l-.88.88M4.28 11.72l-.88.88" stroke={color} strokeWidth="1.25" strokeLinecap="round"/>
+      <circle cx="8" cy="8" r="3" stroke={color} strokeWidth="1.25" />
+      <path d="M8 1.5v1.25M8 13.25V14.5M1.5 8h1.25M13.25 8H14.5M3.4 3.4l.88.88M11.72 11.72l.88.88M11.72 4.28l-.88.88M4.28 11.72l-.88.88" stroke={color} strokeWidth="1.25" strokeLinecap="round" />
     </svg>
   ),
   Moon: ({ size = 16, color }) => (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
-      <path d="M13.5 9.5A6 6 0 0 1 6.5 2.5a6 6 0 1 0 7 7z" stroke={color} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M13.5 9.5A6 6 0 0 1 6.5 2.5a6 6 0 1 0 7 7z" stroke={color} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
   ChevronLeft: ({ size = 18, color }) => (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
-      <path d="M10 4l-4 4 4 4" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M10 4l-4 4 4 4" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
   ChevronRight: ({ size = 18, color }) => (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
-      <path d="M6 4l4 4-4 4" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M6 4l4 4-4 4" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
   Folder: ({ size = 20, color }) => (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
-      <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" stroke={color} strokeWidth="1.5" strokeLinejoin="round"/>
+      <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" stroke={color} strokeWidth="1.5" strokeLinejoin="round" />
     </svg>
   ),
   X: ({ size = 14, color }) => (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
-      <circle cx="8" cy="8" r="6.25" stroke={color} strokeWidth="1.25"/>
-      <path d="M5.5 5.5l5 5M10.5 5.5l-5 5" stroke={color} strokeWidth="1.25" strokeLinecap="round"/>
+      <circle cx="8" cy="8" r="6.25" stroke={color} strokeWidth="1.25" />
+      <path d="M5.5 5.5l5 5M10.5 5.5l-5 5" stroke={color} strokeWidth="1.25" strokeLinecap="round" />
     </svg>
   ),
   Trophy: ({ size = 24, color }) => (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
-      <path d="M7 4h10v5a5 5 0 0 1-10 0V4z" stroke={color} strokeWidth="1.5" strokeLinejoin="round"/>
-      <path d="M7 6H5a2 2 0 0 0-2 2v1a3 3 0 0 0 3 3h1M17 6h2a2 2 0 0 1 2 2v1a3 3 0 0 1-3 3h-1" stroke={color} strokeWidth="1.5" strokeLinecap="round"/>
-      <path d="M12 14v4M8 20h8" stroke={color} strokeWidth="1.5" strokeLinecap="round"/>
+      <path d="M7 4h10v5a5 5 0 0 1-10 0V4z" stroke={color} strokeWidth="1.5" strokeLinejoin="round" />
+      <path d="M7 6H5a2 2 0 0 0-2 2v1a3 3 0 0 0 3 3h1M17 6h2a2 2 0 0 1 2 2v1a3 3 0 0 1-3 3h-1" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M12 14v4M8 20h8" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
     </svg>
   ),
   Refresh: ({ size = 14, color = '#fff' }) => (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
-      <path d="M14 8a6 6 0 1 1-1.75-4.24M14 3.5V6h-2.5" stroke={color} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M14 8a6 6 0 1 1-1.75-4.24M14 3.5V6h-2.5" stroke={color} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
   ArrowLeft: ({ size = 14, color }) => (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
-      <path d="M13 8H3M7 4L3 8l4 4" stroke={color} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M13 8H3M7 4L3 8l4 4" stroke={color} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
 }
@@ -154,17 +154,17 @@ function formatTime(seconds) {
 ───────────────────────────────────────── */
 function NavLinks({ T, navigate }) {
   const [hov, setHov] = useState(null)
-  const currentPath   = window.location.pathname
+  const currentPath = window.location.pathname
   const links = [
-    { label: 'Accueil',  path: '/' },
+    { label: 'Accueil', path: '/' },
     { label: 'Mes Labs', path: '/labs' },
-    { label: 'Profil',   path: '/profil' },
+    { label: 'Profil', path: '/profil' },
   ]
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
       {links.map(link => {
         const isActive = currentPath === link.path
-        const isHov    = hov === link.path
+        const isHov = hov === link.path
         return (
           <button key={link.path} onClick={() => navigate(link.path)}
             onMouseEnter={() => setHov(link.path)} onMouseLeave={() => setHov(null)}
@@ -188,7 +188,7 @@ function NavLinks({ T, navigate }) {
 ───────────────────────────────────────── */
 function Navbar({ user, dark, onToggleDark, onDeconnexion, T }) {
   const [hovLogout, setHovLogout] = useState(false)
-  const [hovTheme,  setHovTheme]  = useState(false)
+  const [hovTheme, setHovTheme] = useState(false)
   const navigate = useNavigate()
   return (
     <nav style={{
@@ -199,8 +199,8 @@ function Navbar({ user, dark, onToggleDark, onDeconnexion, T }) {
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '36px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => navigate('/')}>
-          <div style={{ width: '34px', height: '34px', borderRadius: '50%', background: T.orange, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Icon.Check size={16} color="#fff" />
+          <div style={{ width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <img src={logo} alt="logo" style={{ width: '140%', height: '140%', objectFit: 'contain' }} />
           </div>
           <div style={{ lineHeight: 1 }}>
             <div style={{ fontSize: '15px', fontWeight: '700', color: T.text, fontFamily: FONT }}>
@@ -236,19 +236,19 @@ function Navbar({ user, dark, onToggleDark, onDeconnexion, T }) {
    STATS ROW
 ───────────────────────────────────────── */
 function StatsRow({ labs, T }) {
-  const total     = labs.length
+  const total = labs.length
   const completes = labs.filter(l => l.reussi).length
   const debloques = labs.filter(l => l.debloque).length
-  const pct       = total > 0 ? Math.round((completes / total) * 100) : 0
-  const tous      = total > 0 && completes === total
-  const enCours   = labs.find(l => l.debloque && !l.reussi)
-  const prochain  = tous ? null : labs.find(l => !l.reussi)
+  const pct = total > 0 ? Math.round((completes / total) * 100) : 0
+  const tous = total > 0 && completes === total
+  const enCours = labs.find(l => l.debloque && !l.reussi)
+  const prochain = tous ? null : labs.find(l => !l.reussi)
 
   const cards = [
-    { key:'debloques', bar:T.orange, label:'Labs débloqués', val:`${debloques} / ${total}`, sub:'Accessibles dans le parcours' },
-    { key:'reussis', bar:completes > 0 ? T.ok : T.border, label:'Labs réussis', val:`${completes} / ${total}`, sub:`${pct}% du parcours complété`, progress:pct, progressColor:completes > 0 ? T.ok : T.border },
-    { key:'encours', bar:enCours ? T.orange : T.border, label:'Lab en cours', valSmall:enCours ? enCours.titre : '—', sub:enCours ? `Difficulté : ${enCours.difficulte}` : tous ? 'Tous réussis' : 'Aucun lab actif' },
-    { key:'prochain', bar:tous ? T.ok : T.border, label:'Prochain objectif', valSmall:prochain ? prochain.titre : 'Parcours terminé', sub:prochain ? `Réussissez "${enCours?.titre ?? 'le lab en cours'}"` : 'Tous les labs sont débloqués' },
+    { key: 'debloques', bar: T.orange, label: 'Labs débloqués', val: `${debloques} / ${total}`, sub: 'Accessibles dans le parcours' },
+    { key: 'reussis', bar: completes > 0 ? T.ok : T.border, label: 'Labs réussis', val: `${completes} / ${total}`, sub: `${pct}% du parcours complété`, progress: pct, progressColor: completes > 0 ? T.ok : T.border },
+    { key: 'encours', bar: enCours ? T.orange : T.border, label: 'Lab en cours', valSmall: enCours ? enCours.titre : '—', sub: enCours ? `Difficulté : ${enCours.difficulte}` : tous ? 'Tous réussis' : 'Aucun lab actif' },
+    { key: 'prochain', bar: tous ? T.ok : T.border, label: 'Prochain objectif', valSmall: prochain ? prochain.titre : 'Parcours terminé', sub: prochain ? `Réussissez "${enCours?.titre ?? 'le lab en cours'}"` : 'Tous les labs sont débloqués' },
   ]
 
   return (
@@ -341,11 +341,11 @@ function LabCard({ lab, globalIndex, onLancer, T }) {
    SECTION CATÉGORIE
 ───────────────────────────────────────── */
 function CategorieSection({ nom, labs, index, globalOffset, onLancer, T }) {
-  const [visible, setVisible]   = useState(index === 0)
-  const [canLeft, setCanLeft]   = useState(false)
+  const [visible, setVisible] = useState(index === 0)
+  const [canLeft, setCanLeft] = useState(false)
   const [canRight, setCanRight] = useState(false)
   const sectionRef = useRef(null)
-  const scrollRef  = useRef(null)
+  const scrollRef = useRef(null)
   const color = CAT_COLORS[index % CAT_COLORS.length]
 
   useEffect(() => {
@@ -382,8 +382,8 @@ function CategorieSection({ nom, labs, index, globalOffset, onLancer, T }) {
     scrollRef.current?.scrollBy({ left: dir * 300, behavior: 'smooth' })
   }
 
-  const taux      = tauxCategorie(labs)
-  const labsOk    = labs.filter(l => l.reussi).length
+  const taux = tauxCategorie(labs)
+  const labsOk = labs.filter(l => l.reussi).length
   const tauxColor = taux >= 70 ? T.ok : taux > 0 ? T.orange : T.textMuted
   const tauxBarre = taux >= 70 ? T.ok : taux > 0 ? color : T.border
 
@@ -499,16 +499,16 @@ function LoadingScreen({ lab, T }) {
    RÉSULTAT ÉCRAN — fin du lab
 ───────────────────────────────────────── */
 function ResultatScreen({ lab, resultat, onRefaire, onRetour, T }) {
-  const etapes      = resultat.etapes || []
-  const etapesOk    = etapes.filter(e => e.completee).length
+  const etapes = resultat.etapes || []
+  const etapesOk = etapes.filter(e => e.completee).length
   const etapesTotal = etapes.length
-  const score       = etapesTotal > 0 ? Math.round((etapesOk / etapesTotal) * 100) : 0
-  const reussi      = score === 100
-  const tempsMin    = Math.floor((resultat.tempsPasse || 0) / 60)
-  const tempsSec    = (resultat.tempsPasse || 0) % 60
+  const score = etapesTotal > 0 ? Math.round((etapesOk / etapesTotal) * 100) : 0
+  const reussi = score === 100
+  const tempsMin = Math.floor((resultat.tempsPasse || 0) / 60)
+  const tempsSec = (resultat.tempsPasse || 0) % 60
 
   const scoreColor = score >= 70 ? T.ok : score > 0 ? T.orange : T.err
-  const scoreBg    = score >= 70 ? T.okLight : score > 0 ? T.orangeLight : T.errLight
+  const scoreBg = score >= 70 ? T.okLight : score > 0 ? T.orangeLight : T.errLight
 
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto', padding: '40px 20px' }}>
@@ -653,7 +653,7 @@ function VueTerminal({ lab, terminalRef, onArreter, timer, T }) {
   // Couleur du timer selon temps restant
   const minRestantes = Math.floor(timer / 60)
   const timerColor = timer <= 60 ? T.err : minRestantes < 5 ? T.orange : T.text
-  const timerBg    = timer <= 60 ? T.errLight : minRestantes < 5 ? T.orangeLight : T.pillBg
+  const timerBg = timer <= 60 ? T.errLight : minRestantes < 5 ? T.orangeLight : T.pillBg
 
   return (
     <div>
@@ -700,7 +700,7 @@ function VueTerminal({ lab, terminalRef, onArreter, timer, T }) {
 
       <div style={{ borderRadius: '6px', overflow: 'hidden', border: '1px solid #2A2A2A' }}>
         <div style={{ background: '#242424', padding: '10px 14px', display: 'flex', alignItems: 'center', gap: '6px', borderBottom: '1px solid #333' }}>
-          {['#FF5F57','#FFBD2E','#28C840'].map(bg => (
+          {['#FF5F57', '#FFBD2E', '#28C840'].map(bg => (
             <div key={bg} style={{ width: '11px', height: '11px', borderRadius: '50%', background: bg }} />
           ))}
           <span style={{ fontSize: '11px', fontWeight: '500', color: '#666', marginLeft: '8px', fontFamily: MONO }}>
@@ -717,23 +717,23 @@ function VueTerminal({ lab, terminalRef, onArreter, timer, T }) {
    COMPOSANT PRINCIPAL
 ───────────────────────────────────────── */
 function Labs() {
-  const [labs, setLabs]         = useState([])
+  const [labs, setLabs] = useState([])
   const [labActif, setLabActif] = useState(null)
-  const [phase, setPhase]       = useState('liste')  // 'liste' | 'loading' | 'running' | 'resultat'
+  const [phase, setPhase] = useState('liste')  // 'liste' | 'loading' | 'running' | 'resultat'
   const [resultat, setResultat] = useState(null)
-  const [timer, setTimer]       = useState(LAB_DURATION_SECONDS)
-  const [dark, setDark]         = useState(() => localStorage.getItem('theme') === 'dark')
+  const [timer, setTimer] = useState(LAB_DURATION_SECONDS)
+  const [dark, setDark] = useState(() => localStorage.getItem('theme') === 'dark')
 
-  const terminalRef  = useRef(null)
-  const socketRef    = useRef(null)
-  const xtermRef     = useRef(null)
-  const timerRef     = useRef(null)
-  const etapesRef    = useRef([])  // Buffer des étapes détectées dans la session
+  const terminalRef = useRef(null)
+  const socketRef = useRef(null)
+  const xtermRef = useRef(null)
+  const timerRef = useRef(null)
+  const etapesRef = useRef([])  // Buffer des étapes détectées dans la session
   const startTimeRef = useRef(null)
 
   const navigate = useNavigate()
-  const user     = JSON.parse(localStorage.getItem('user'))
-  const T        = getTheme(dark)
+  const user = JSON.parse(localStorage.getItem('user'))
+  const T = getTheme(dark)
 
   function toggleDark() {
     setDark(d => { const next = !d; localStorage.setItem('theme', next ? 'dark' : 'light'); return next })
@@ -749,8 +749,8 @@ function Labs() {
 
   async function chargerLabs() {
     const token = localStorage.getItem('token')
-    const res   = await fetch('http://localhost:5000/api/labs', { headers: { Authorization: `Bearer ${token}` } })
-    const data  = await res.json()
+    const res = await fetch('http://localhost:5000/api/labs', { headers: { Authorization: `Bearer ${token}` } })
+    const data = await res.json()
     setLabs(data)
   }
 

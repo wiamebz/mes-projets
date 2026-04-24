@@ -1,62 +1,63 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import logo from '../img/logo.png'
 
 /* ─────────────────────────────────────────
    THÈME — light / dark (admin)
 ───────────────────────────────────────── */
 function getTheme(dark) {
   return dark ? {
-    bg:          '#111318',
-    bgSecond:    '#1A1D24',
-    bgCard:      '#1E2128',
-    bgHeader:    '#23272F',
-    bgRowHover:  '#23272F',
-    border:      '#2A2D37',
-    text:        '#F0F0F0',
-    textSub:     '#9AA0B0',
-    textMuted:   '#5A6070',
-    orange:      '#FF7900',
-    orangeDark:  '#E05C00',
+    bg: '#111318',
+    bgSecond: '#1A1D24',
+    bgCard: '#1E2128',
+    bgHeader: '#23272F',
+    bgRowHover: '#23272F',
+    border: '#2A2D37',
+    text: '#F0F0F0',
+    textSub: '#9AA0B0',
+    textMuted: '#5A6070',
+    orange: '#FF7900',
+    orangeDark: '#E05C00',
     orangeLight: 'rgba(255,121,0,0.15)',
-    ok:          '#4CAF50',
-    okLight:     'rgba(76,175,80,0.15)',
-    err:         '#EF5350',
-    errLight:    'rgba(239,83,80,0.15)',
-    info:        '#42A5F5',
-    infoLight:   'rgba(66,165,245,0.12)',
-    navBg:       '#13151B',
-    pillBg:      '#2A2D37',
-    inputBg:     '#23272F',
-    btnBg:       '#23272F',
-    logoIcon:    '#F0F0F0',
-    logoText:    '#F0F0F0',
-    avatarBg:    '#FF7900',
+    ok: '#4CAF50',
+    okLight: 'rgba(76,175,80,0.15)',
+    err: '#EF5350',
+    errLight: 'rgba(239,83,80,0.15)',
+    info: '#42A5F5',
+    infoLight: 'rgba(66,165,245,0.12)',
+    navBg: '#13151B',
+    pillBg: '#2A2D37',
+    inputBg: '#23272F',
+    btnBg: '#23272F',
+    logoIcon: '#F0F0F0',
+    logoText: '#F0F0F0',
+    avatarBg: '#FF7900',
   } : {
-    bg:          '#F2F2F2',
-    bgSecond:    '#FAFAFA',
-    bgCard:      '#FFFFFF',
-    bgHeader:    '#FAFAFA',
-    bgRowHover:  '#FAFAFA',
-    border:      '#E0E0E0',
-    text:        '#1A1A1A',
-    textSub:     '#595959',
-    textMuted:   '#9E9E9E',
-    orange:      '#FF7900',
-    orangeDark:  '#E05C00',
+    bg: '#F2F2F2',
+    bgSecond: '#FAFAFA',
+    bgCard: '#FFFFFF',
+    bgHeader: '#FAFAFA',
+    bgRowHover: '#FAFAFA',
+    border: '#E0E0E0',
+    text: '#1A1A1A',
+    textSub: '#595959',
+    textMuted: '#9E9E9E',
+    orange: '#FF7900',
+    orangeDark: '#E05C00',
     orangeLight: '#FFF3E8',
-    ok:          '#2E7D32',
-    okLight:     '#E8F5E9',
-    err:         '#C62828',
-    errLight:    '#FFEBEE',
-    info:        '#1976D2',
-    infoLight:   '#E3F2FD',
-    navBg:       '#FFFFFF',
-    pillBg:      '#F4F4F4',
-    inputBg:     '#FFFFFF',
-    btnBg:       '#FFFFFF',
-    logoIcon:    '#1A1A1A',
-    logoText:    '#1A1A1A',
-    avatarBg:    '#1A1A1A',
+    ok: '#2E7D32',
+    okLight: '#E8F5E9',
+    err: '#C62828',
+    errLight: '#FFEBEE',
+    info: '#1976D2',
+    infoLight: '#E3F2FD',
+    navBg: '#FFFFFF',
+    pillBg: '#F4F4F4',
+    inputBg: '#FFFFFF',
+    btnBg: '#FFFFFF',
+    logoIcon: '#1A1A1A',
+    logoText: '#1A1A1A',
+    avatarBg: '#1A1A1A',
   }
 }
 
@@ -68,74 +69,74 @@ const FONT = "'Helvetica Neue', Helvetica, Arial, sans-serif"
 const Icon = {
   Logout: ({ size = 14, color }) => (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
-      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
   ChevronRight: ({ size = 14, color }) => (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
-      <path d="M9 6l6 6-6 6" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M9 6l6 6-6 6" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
   Lock: ({ size = 14, color }) => (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
-      <rect x="4" y="11" width="16" height="10" rx="2" stroke={color} strokeWidth="1.5"/>
-      <path d="M8 11V7a4 4 0 0 1 8 0v4" stroke={color} strokeWidth="1.5"/>
+      <rect x="4" y="11" width="16" height="10" rx="2" stroke={color} strokeWidth="1.5" />
+      <path d="M8 11V7a4 4 0 0 1 8 0v4" stroke={color} strokeWidth="1.5" />
     </svg>
   ),
   Unlock: ({ size = 14, color }) => (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
-      <rect x="4" y="11" width="16" height="10" rx="2" stroke={color} strokeWidth="1.5"/>
-      <path d="M8 11V7a4 4 0 0 1 7-2.5" stroke={color} strokeWidth="1.5" strokeLinecap="round"/>
+      <rect x="4" y="11" width="16" height="10" rx="2" stroke={color} strokeWidth="1.5" />
+      <path d="M8 11V7a4 4 0 0 1 7-2.5" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
     </svg>
   ),
   Calendar: ({ size = 14, color }) => (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
-      <rect x="3" y="5" width="18" height="16" rx="2" stroke={color} strokeWidth="1.5"/>
-      <path d="M3 10h18M8 3v4M16 3v4" stroke={color} strokeWidth="1.5" strokeLinecap="round"/>
+      <rect x="3" y="5" width="18" height="16" rx="2" stroke={color} strokeWidth="1.5" />
+      <path d="M3 10h18M8 3v4M16 3v4" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
     </svg>
   ),
   Layers: ({ size = 16, color }) => (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
-      <path d="M12 2L2 7l10 5 10-5-10-5z" stroke={color} strokeWidth="1.5" strokeLinejoin="round"/>
-      <path d="M2 17l10 5 10-5M2 12l10 5 10-5" stroke={color} strokeWidth="1.5" strokeLinejoin="round"/>
+      <path d="M12 2L2 7l10 5 10-5-10-5z" stroke={color} strokeWidth="1.5" strokeLinejoin="round" />
+      <path d="M2 17l10 5 10-5M2 12l10 5 10-5" stroke={color} strokeWidth="1.5" strokeLinejoin="round" />
     </svg>
   ),
   Box: ({ size = 16, color }) => (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
-      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" stroke={color} strokeWidth="1.5" strokeLinejoin="round"/>
-      <path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" stroke={color} strokeWidth="1.5" strokeLinejoin="round" />
+      <path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
   Save: ({ size = 14, color }) => (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
-      <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" stroke={color} strokeWidth="1.5" strokeLinejoin="round"/>
-      <path d="M17 21v-8H7v8M7 3v5h8" stroke={color} strokeWidth="1.5" strokeLinejoin="round"/>
+      <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" stroke={color} strokeWidth="1.5" strokeLinejoin="round" />
+      <path d="M17 21v-8H7v8M7 3v5h8" stroke={color} strokeWidth="1.5" strokeLinejoin="round" />
     </svg>
   ),
   Refresh: ({ size = 13, color }) => (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
-      <path d="M21 12a9 9 0 0 1-15 6.7L3 16M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5M3 21v-5h5" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M21 12a9 9 0 0 1-15 6.7L3 16M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5M3 21v-5h5" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
   Check: ({ size = 14, color = '#fff' }) => (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
-      <path d="M20 6L9 17l-5-5" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M20 6L9 17l-5-5" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
   X: ({ size = 14, color }) => (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
-      <path d="M18 6L6 18M6 6l12 12" stroke={color} strokeWidth="1.5" strokeLinecap="round"/>
+      <path d="M18 6L6 18M6 6l12 12" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
     </svg>
   ),
   Sun: ({ size = 16, color }) => (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
-      <circle cx="8" cy="8" r="3" stroke={color} strokeWidth="1.25"/>
-      <path d="M8 1.5v1.25M8 13.25V14.5M1.5 8h1.25M13.25 8H14.5M3.4 3.4l.88.88M11.72 11.72l.88.88M11.72 4.28l-.88.88M4.28 11.72l-.88.88" stroke={color} strokeWidth="1.25" strokeLinecap="round"/>
+      <circle cx="8" cy="8" r="3" stroke={color} strokeWidth="1.25" />
+      <path d="M8 1.5v1.25M8 13.25V14.5M1.5 8h1.25M13.25 8H14.5M3.4 3.4l.88.88M11.72 11.72l.88.88M11.72 4.28l-.88.88M4.28 11.72l-.88.88" stroke={color} strokeWidth="1.25" strokeLinecap="round" />
     </svg>
   ),
   Moon: ({ size = 16, color }) => (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
-      <path d="M13.5 9.5A6 6 0 0 1 6.5 2.5a6 6 0 1 0 7 7z" stroke={color} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M13.5 9.5A6 6 0 0 1 6.5 2.5a6 6 0 1 0 7 7z" stroke={color} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
 }
@@ -160,9 +161,9 @@ function formatDateFr(dateStr) {
 }
 
 const getDiffColors = (T) => ({
-  'Débutant':      T.ok,
+  'Débutant': T.ok,
   'Intermédiaire': T.orange,
-  'Avancé':        T.err,
+  'Avancé': T.err,
 })
 
 /* ─────────────────────────────────────────
@@ -170,13 +171,13 @@ const getDiffColors = (T) => ({
 ───────────────────────────────────────── */
 function NavbarAdmin({ user, onDeconnexion, navigate, dark, onToggleDark, T }) {
   const [hovLogout, setHovLogout] = useState(false)
-  const [hovTheme, setHovTheme]   = useState(false)
-  const [hovLink, setHovLink]     = useState(null)
+  const [hovTheme, setHovTheme] = useState(false)
+  const [hovLink, setHovLink] = useState(null)
   const currentPath = window.location.pathname
 
   const links = [
     { label: 'Utilisateurs', path: '/admin' },
-    { label: 'Parcours',     path: '/admin/gestion' },
+    { label: 'Parcours', path: '/admin/gestion' },
   ]
 
   return (
@@ -188,12 +189,15 @@ function NavbarAdmin({ user, onDeconnexion, navigate, dark, onToggleDark, T }) {
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '36px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => navigate('/admin')}>
-          <div style={{ width: '34px', height: '34px', borderRadius: '6px', background: T.logoIcon, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background .3s' }}>
+          <div style={{ width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <img src={logo} alt="logo" style={{ width: '140%', height: '140%', objectFit: 'contain' }} />
+          </div>
+          {/* <div style={{ width: '34px', height: '34px', borderRadius: '6px', background: T.logoIcon, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background .3s' }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
               <rect x="5" y="5" width="14" height="14" rx="2" stroke={dark ? '#1A1A1A' : '#FFFFFF'} strokeWidth="2"/>
               <path d="M9 12h6M12 9v6" stroke={dark ? '#1A1A1A' : '#FFFFFF'} strokeWidth="2" strokeLinecap="round"/>
             </svg>
-          </div>
+          </div> */}
           <div style={{ lineHeight: 1 }}>
             <div style={{ fontSize: '15px', fontWeight: '700', color: T.logoText, fontFamily: FONT, transition: 'color .3s' }}>
               Lab<span style={{ color: T.orange }}>Platform</span>
@@ -207,7 +211,7 @@ function NavbarAdmin({ user, onDeconnexion, navigate, dark, onToggleDark, T }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
           {links.map(link => {
             const isActive = currentPath === link.path
-            const isHov    = hovLink === link.path
+            const isHov = hovLink === link.path
             return (
               <button key={link.path} onClick={() => navigate(link.path)}
                 onMouseEnter={() => setHovLink(link.path)} onMouseLeave={() => setHovLink(null)}
@@ -355,14 +359,14 @@ function LabRow({ lab, onUpdate, toast, T }) {
   const [saving, setSaving] = useState(false)
 
   const value = lab.deblocage_manuel ? 'unlock'
-              : lab.verrouillage_manuel ? 'lock'
-              : 'auto'
+    : lab.verrouillage_manuel ? 'lock'
+      : 'auto'
 
   async function changer(nouveau) {
     setSaving(true)
     const update = {
       verrouillage_manuel: nouveau === 'lock',
-      deblocage_manuel:    nouveau === 'unlock',
+      deblocage_manuel: nouveau === 'unlock',
     }
     try {
       const token = localStorage.getItem('token')
@@ -427,9 +431,9 @@ function LabRow({ lab, onUpdate, toast, T }) {
           onChange={changer}
           T={T}
           options={[
-            { value: 'lock',   label: 'Verrouiller', icon: <Icon.Lock size={11} color={value === 'lock' ? '#fff' : T.err} />,  color: T.err },
-            { value: 'unlock', label: 'Débloquer',   icon: <Icon.Unlock size={11} color={value === 'unlock' ? '#fff' : T.ok} />, color: T.ok },
-            { value: 'auto',   label: 'Auto',        icon: <Icon.Refresh size={11} color={value === 'auto' ? '#fff' : T.textSub} />, color: T.textSub },
+            { value: 'lock', label: 'Verrouiller', icon: <Icon.Lock size={11} color={value === 'lock' ? '#fff' : T.err} />, color: T.err },
+            { value: 'unlock', label: 'Débloquer', icon: <Icon.Unlock size={11} color={value === 'unlock' ? '#fff' : T.ok} />, color: T.ok },
+            { value: 'auto', label: 'Auto', icon: <Icon.Refresh size={11} color={value === 'auto' ? '#fff' : T.textSub} />, color: T.textSub },
           ]}
         />
       </td>
@@ -441,16 +445,16 @@ function LabRow({ lab, onUpdate, toast, T }) {
    CARD CATÉGORIE
 ───────────────────────────────────────── */
 function CategorieCard({ cat, onUpdate, toast, T }) {
-  const [verrouillage, setVerrouillage]   = useState(cat.verrouillage_manuel)
-  const [deblocage, setDeblocage]         = useState(cat.deblocage_manuel)
+  const [verrouillage, setVerrouillage] = useState(cat.verrouillage_manuel)
+  const [deblocage, setDeblocage] = useState(cat.deblocage_manuel)
   const [dateOuverture, setDateOuverture] = useState(toDateInput(cat.date_ouverture))
-  const [saving, setSaving]               = useState(false)
-  const [bulkSaving, setBulkSaving]       = useState(false)
-  const [hovSave, setHovSave]             = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [bulkSaving, setBulkSaving] = useState(false)
+  const [hovSave, setHovSave] = useState(false)
 
   const aChange =
-    verrouillage  !== cat.verrouillage_manuel ||
-    deblocage     !== cat.deblocage_manuel    ||
+    verrouillage !== cat.verrouillage_manuel ||
+    deblocage !== cat.deblocage_manuel ||
     dateOuverture !== toDateInput(cat.date_ouverture)
 
   const valueCat = deblocage ? 'unlock' : verrouillage ? 'lock' : 'auto'
@@ -469,8 +473,8 @@ function CategorieCard({ cat, onUpdate, toast, T }) {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({
           verrouillage_manuel: verrouillage,
-          deblocage_manuel:    deblocage,
-          date_ouverture:      dateOuverture || null,
+          deblocage_manuel: deblocage,
+          date_ouverture: dateOuverture || null,
         }),
       })
       const data = await res.json()
@@ -489,9 +493,9 @@ function CategorieCard({ cat, onUpdate, toast, T }) {
 
   async function actionEnMasse(action) {
     const labels = {
-      lock_all:   'Verrouiller tous les labs',
+      lock_all: 'Verrouiller tous les labs',
       unlock_all: 'Débloquer tous les labs',
-      reset_all:  'Réinitialiser tous les labs',
+      reset_all: 'Réinitialiser tous les labs',
     }
     if (!window.confirm(`${labels[action]} de "${cat.nom}" ?`)) return
 
@@ -559,9 +563,9 @@ function CategorieCard({ cat, onUpdate, toast, T }) {
               onChange={changerCategorie}
               T={T}
               options={[
-                { value: 'lock',   label: 'Verrouiller', icon: <Icon.Lock size={12} color={valueCat === 'lock' ? '#fff' : T.err} />,  color: T.err },
-                { value: 'unlock', label: 'Débloquer',   icon: <Icon.Unlock size={12} color={valueCat === 'unlock' ? '#fff' : T.ok} />, color: T.ok },
-                { value: 'auto',   label: 'Automatique', icon: <Icon.Refresh size={12} color={valueCat === 'auto' ? '#fff' : T.textSub} />, color: T.textSub },
+                { value: 'lock', label: 'Verrouiller', icon: <Icon.Lock size={12} color={valueCat === 'lock' ? '#fff' : T.err} />, color: T.err },
+                { value: 'unlock', label: 'Débloquer', icon: <Icon.Unlock size={12} color={valueCat === 'unlock' ? '#fff' : T.ok} />, color: T.ok },
+                { value: 'auto', label: 'Automatique', icon: <Icon.Refresh size={12} color={valueCat === 'auto' ? '#fff' : T.textSub} />, color: T.textSub },
               ]}
             />
           </div>
@@ -766,14 +770,14 @@ function StatBox({ icon, value, label, T }) {
 ───────────────────────────────────────── */
 function AdminGestion() {
   const [categories, setCategories] = useState([])
-  const [loading, setLoading]       = useState(true)
+  const [loading, setLoading] = useState(true)
   const [toastState, setToastState] = useState(null)
-  const [dark, setDark]             = useState(() => localStorage.getItem('theme_admin') === 'dark')
+  const [dark, setDark] = useState(() => localStorage.getItem('theme_admin') === 'dark')
 
   const navigate = useNavigate()
-  const token    = localStorage.getItem('token')
-  const user     = JSON.parse(localStorage.getItem('user'))
-  const T        = getTheme(dark)
+  const token = localStorage.getItem('token')
+  const user = JSON.parse(localStorage.getItem('user'))
+  const T = getTheme(dark)
 
   function toggleDark() {
     setDark(d => {
@@ -787,7 +791,7 @@ function AdminGestion() {
 
   async function chargerCategories() {
     try {
-      const res  = await fetch('http://localhost:5000/api/admin/categories', {
+      const res = await fetch('http://localhost:5000/api/admin/categories', {
         headers: { Authorization: `Bearer ${token}` },
       })
       const data = await res.json()

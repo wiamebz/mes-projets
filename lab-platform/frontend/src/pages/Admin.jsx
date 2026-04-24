@@ -29,6 +29,8 @@ function getTheme(dark) {
     avatarBg: '#FF7900',
     overlayBg: 'rgba(0, 0, 0, 0.75)',
     shadow: '0 20px 60px rgba(0, 0, 0, 0.5)',
+    badgeBg: 'rgba(255,121,0,0.12)',
+    badgeBorder: 'rgba(255,121,0,0.25)',
   } : {
     bg: '#F2F2F2',
     bgSecond: '#EAEAEA',
@@ -53,6 +55,8 @@ function getTheme(dark) {
     avatarBg: '#1A1A1A',
     overlayBg: 'rgba(0, 0, 0, 0.5)',
     shadow: '0 20px 60px rgba(0, 0, 0, 0.25)',
+    badgeBg: '#FFF3E8',
+    badgeBorder: '#FFD0A0',
   }
 }
 
@@ -135,6 +139,20 @@ const Icon = {
       <path d="M4 5v6c0 1.66 3.58 3 8 3s8-1.34 8-3V5M4 11v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
     </svg>
   ),
+  // Icône calendrier pour le badge export auto
+  Calendar: ({ size = 12, color }) => (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
+      <rect x="1.75" y="2.75" width="12.5" height="11.5" rx="1.5" stroke={color} strokeWidth="1.25" />
+      <path d="M1.75 6.25h12.5M5.25 1.5v2.5M10.75 1.5v2.5" stroke={color} strokeWidth="1.25" strokeLinecap="round" />
+    </svg>
+  ),
+  // Icône téléchargement
+  Download: ({ size = 12, color }) => (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
+      <path d="M8 2v8M5 7l3 3 3-3" stroke={color} strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M2.75 13.25h10.5" stroke={color} strokeWidth="1.25" strokeLinecap="round" />
+    </svg>
+  ),
   UsersBold: ({ size = 24, color }) => (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
       <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
@@ -174,6 +192,103 @@ const initiales = nom => {
   return p.length >= 2 ? (p[0][0] + p[1][0]).toUpperCase() : nom.slice(0, 2).toUpperCase()
 }
 
+function formatDateCourte(isoDate) {
+  if (!isoDate) return null
+  return new Date(isoDate).toLocaleDateString('fr-FR', {
+    day: '2-digit', month: '2-digit', year: 'numeric',
+    hour: '2-digit', minute: '2-digit',
+  })
+}
+
+/* ─────────────────────────────────────────
+   BADGE DERNIER EXPORT AUTO
+───────────────────────────────────────── */
+function BadgeExportAuto({ exportInfo, token, T }) {
+  const [hovDownload, setHovDownload] = useState(false)
+
+  if (!exportInfo?.dernierExport) return null
+
+  async function telecharger() {
+    if (!exportInfo.fichier) return
+    try {
+      const res = await fetch(
+        `http://localhost:5000/api/admin/exports/download/${exportInfo.fichier}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+      if (!res.ok) return
+      const blob = await res.blob()
+      const url  = URL.createObjectURL(blob)
+      const a    = document.createElement('a')
+      a.href     = url
+      a.download = exportInfo.fichier
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch (err) {
+      console.log('Erreur téléchargement :', err)
+    }
+  }
+
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', gap: '8px',
+      background: T.badgeBg,
+      border: `1px solid ${T.badgeBorder}`,
+      borderRadius: '6px',
+      padding: '5px 10px',
+      transition: 'all .3s',
+    }}>
+      {/* Point vert animé */}
+      <span style={{
+        width: '7px', height: '7px', borderRadius: '50%',
+        background: T.ok, flexShrink: 0,
+        boxShadow: `0 0 0 2px ${T.ok}33`,
+        animation: 'pulse 2s infinite',
+      }} />
+
+      {/* Texte */}
+      <div style={{ lineHeight: 1 }}>
+        <div style={{
+          fontSize: '9px', fontWeight: '700', color: T.textMuted,
+          textTransform: 'uppercase', letterSpacing: '0.6px',
+          fontFamily: FONT,
+        }}>
+          Export 
+        </div>
+        <div style={{
+          fontSize: '11px', fontWeight: '600', color: T.textSub,
+          fontFamily: FONT, marginTop: '2px',
+          display: 'flex', alignItems: 'center', gap: '4px',
+        }}>
+          <Icon.Calendar size={10} color={T.textMuted} />
+          {formatDateCourte(exportInfo.dernierExport)}
+        </div>
+      </div>
+
+      {/* Séparateur */}
+      <div style={{ width: '1px', height: '24px', background: T.badgeBorder }} />
+
+      {/* Bouton télécharger */}
+      <button
+        onClick={telecharger}
+        onMouseEnter={() => setHovDownload(true)}
+        onMouseLeave={() => setHovDownload(false)}
+        title={`Télécharger ${exportInfo.fichier}`}
+        style={{
+          display: 'flex', alignItems: 'center', gap: '4px',
+          fontSize: '11px', fontWeight: '600',
+          color: hovDownload ? T.orange : T.textSub,
+          background: 'none', border: 'none',
+          cursor: 'pointer', fontFamily: FONT,
+          transition: 'color .15s', padding: '2px 4px',
+          borderRadius: '4px',
+        }}
+      >
+        <Icon.Download size={15} color={hovDownload ? T.orange : T.textSub} />
+      </button>
+    </div>
+  )
+}
+
 /* ─────────────────────────────────────────
    MODAL EXPORT RESULT — Popup pro
 ───────────────────────────────────────── */
@@ -183,61 +298,40 @@ function ExportResultModal({ result, onClose, T, dark }) {
   const isSuccess = result.type === 'success'
   const accentColor = isSuccess ? T.ok : T.err
   const accentLight = isSuccess ? T.okLight : T.errLight
+  const HeaderIcon  = isSuccess ? Icon.CheckBold : Icon.XBold
 
-  // Icône header (centrée en rond)
-  const HeaderIcon = isSuccess ? Icon.CheckBold : Icon.XBold
-
-  // Stats cards (uniquement si succès avec des stats)
   const stats = isSuccess && result.stats ? [
-    { icon: Icon.UsersBold, label: 'Utilisateurs', value: result.stats.users ?? 0, color: '#5C6BC0' },
-    { icon: Icon.LayersBold, label: 'Catégories', value: result.stats.categories ?? 0, color: '#26A69A' },
-    { icon: Icon.BoxBold, label: 'Labs', value: result.stats.labs ?? 0, color: T.orange },
-    { icon: Icon.ActivityBold, label: 'Sessions', value: result.stats.sessions ?? 0, color: '#AB47BC' },
-    { icon: Icon.ChecksBold, label: 'Étapes', value: result.stats.etapes ?? 0, color: '#42A5F5' },
+    { icon: Icon.UsersBold,   label: 'Utilisateurs', value: result.stats.users      ?? 0, color: '#5C6BC0' },
+    { icon: Icon.LayersBold,  label: 'Catégories',   value: result.stats.categories ?? 0, color: '#26A69A' },
+    { icon: Icon.BoxBold,     label: 'Labs',          value: result.stats.labs       ?? 0, color: T.orange  },
+    { icon: Icon.ActivityBold,label: 'Sessions',      value: result.stats.sessions   ?? 0, color: '#AB47BC' },
+    { icon: Icon.ChecksBold,  label: 'Étapes',        value: result.stats.etapes     ?? 0, color: '#42A5F5' },
   ] : []
 
   return (
     <>
-      {/* Overlay */}
-      <div
-        onClick={onClose}
-        style={{
-          position: 'fixed', inset: 0,
-          background: T.overlayBg,
-          zIndex: 1000,
-          animation: 'fadeIn .25s ease',
-          backdropFilter: 'blur(4px)',
-          WebkitBackdropFilter: 'blur(4px)',
-        }}
-      />
-
-      {/* Modal */}
+      <div onClick={onClose} style={{
+        position: 'fixed', inset: 0, background: T.overlayBg, zIndex: 1000,
+        animation: 'fadeIn .25s ease', backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)',
+      }} />
       <div style={{
         position: 'fixed', top: '50%', left: '50%',
         transform: 'translate(-50%, -50%)',
-        zIndex: 1001,
-        width: '92%', maxWidth: '540px',
-        background: T.bgCard,
-        border: `1px solid ${T.border}`,
-        borderRadius: '16px',
-        overflow: 'hidden',
+        zIndex: 1001, width: '92%', maxWidth: '540px',
+        background: T.bgCard, border: `1px solid ${T.border}`,
+        borderRadius: '16px', overflow: 'hidden',
         boxShadow: T.shadow,
         animation: 'modalIn .35s cubic-bezier(0.34, 1.56, 0.64, 1)',
         fontFamily: FONT,
       }}>
-        {/* Bande colorée en haut */}
         <div style={{ height: '4px', background: accentColor }} />
-
-        {/* Bouton fermer */}
-        <button
-          onClick={onClose}
-          aria-label="Fermer"
+        <button onClick={onClose}
           style={{
             position: 'absolute', top: '16px', right: '16px',
             width: '32px', height: '32px', borderRadius: '8px',
             border: 'none', background: T.pillBg,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer', transition: 'background .15s', zIndex: 2,
+            cursor: 'pointer', zIndex: 2,
           }}
           onMouseEnter={e => e.currentTarget.style.background = T.border}
           onMouseLeave={e => e.currentTarget.style.background = T.pillBg}
@@ -245,61 +339,38 @@ function ExportResultModal({ result, onClose, T, dark }) {
           <Icon.X size={14} color={T.textSub} />
         </button>
 
-        {/* Header : icône + titre + message */}
         <div style={{ padding: '36px 32px 24px', textAlign: 'center' }}>
           <div style={{
             width: '72px', height: '72px', borderRadius: '50%',
-            background: accentLight,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            margin: '0 auto 16px',
-            border: `2px solid ${accentColor}44`,
+            background: accentLight, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            margin: '0 auto 16px', border: `2px solid ${accentColor}44`,
           }}>
             <div style={{
               width: '56px', height: '56px', borderRadius: '50%',
-              background: accentColor,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: accentColor, display: 'flex', alignItems: 'center', justifyContent: 'center',
               animation: 'iconPop .5s cubic-bezier(0.34, 1.56, 0.64, 1)',
             }}>
               <HeaderIcon size={28} color="#fff" />
             </div>
           </div>
-
-          <h2 style={{
-            fontSize: '20px', fontWeight: '700',
-            color: T.text, margin: '0 0 8px 0',
-            letterSpacing: '-0.3px',
-          }}>
-            {isSuccess ? 'Export réussi' : 'Erreur lors de l\'export'}
+          <h2 style={{ fontSize: '20px', fontWeight: '700', color: T.text, margin: '0 0 8px 0', letterSpacing: '-0.3px' }}>
+            {isSuccess ? 'Export réussi' : "Erreur lors de l'export"}
           </h2>
-
-          <p style={{
-            fontSize: '13px', color: T.textSub, margin: 0,
-            lineHeight: 1.6, padding: '0 8px',
-          }}>
+          <p style={{ fontSize: '13px', color: T.textSub, margin: 0, lineHeight: 1.6, padding: '0 8px' }}>
             {isSuccess
               ? 'Toutes les données ont été synchronisées avec MySQL avec succès.'
               : (result.message || 'Une erreur est survenue. Veuillez réessayer.')}
           </p>
         </div>
 
-        {/* Grille des stats (uniquement si succès) */}
         {isSuccess && stats.length > 0 && (
-          <div style={{
-            padding: '0 32px 24px',
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: '10px',
-          }}>
+          <div style={{ padding: '0 32px 24px', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
             {stats.map(stat => {
               const IconComp = stat.icon
               return (
                 <div key={stat.label} style={{
-                  background: T.bgSecond,
-                  border: `1px solid ${T.border}`,
-                  borderRadius: '10px',
-                  padding: '14px 10px',
-                  textAlign: 'center',
-                  transition: 'all .2s',
+                  background: T.bgSecond, border: `1px solid ${T.border}`,
+                  borderRadius: '10px', padding: '14px 10px', textAlign: 'center',
                 }}>
                   <div style={{
                     width: '36px', height: '36px', borderRadius: '8px',
@@ -309,19 +380,10 @@ function ExportResultModal({ result, onClose, T, dark }) {
                   }}>
                     <IconComp size={18} color={stat.color} />
                   </div>
-                  <div style={{
-                    fontSize: '22px', fontWeight: '800',
-                    color: T.text, lineHeight: 1,
-                    letterSpacing: '-0.5px',
-                  }}>
+                  <div style={{ fontSize: '22px', fontWeight: '800', color: T.text, lineHeight: 1, letterSpacing: '-0.5px' }}>
                     {stat.value}
                   </div>
-                  <div style={{
-                    fontSize: '10px', fontWeight: '700',
-                    color: T.textMuted,
-                    textTransform: 'uppercase', letterSpacing: '0.6px',
-                    marginTop: '6px',
-                  }}>
+                  <div style={{ fontSize: '10px', fontWeight: '700', color: T.textMuted, textTransform: 'uppercase', letterSpacing: '0.6px', marginTop: '6px' }}>
                     {stat.label}
                   </div>
                 </div>
@@ -330,93 +392,53 @@ function ExportResultModal({ result, onClose, T, dark }) {
           </div>
         )}
 
-        {/* Indicateur base (uniquement si succès) */}
         {isSuccess && (
-          <div style={{
-            padding: '14px 32px',
-            background: T.bgSecond,
-            borderTop: `1px solid ${T.border}`,
-            display: 'flex', alignItems: 'center', gap: '10px',
-          }}>
+          <div style={{ padding: '14px 32px', background: T.bgSecond, borderTop: `1px solid ${T.border}`, display: 'flex', alignItems: 'center', gap: '10px' }}>
             <Icon.Database size={18} color={T.textSub} />
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: '11px', fontWeight: '700', color: T.textMuted, textTransform: 'uppercase', letterSpacing: '0.6px' }}>
-                Base de destination
-              </div>
-              <div style={{ fontSize: '13px', fontWeight: '600', color: T.text, marginTop: '2px' }}>
-                MySQL · lab_platform
-              </div>
+              <div style={{ fontSize: '11px', fontWeight: '700', color: T.textMuted, textTransform: 'uppercase', letterSpacing: '0.6px' }}>Base de destination</div>
+              <div style={{ fontSize: '13px', fontWeight: '600', color: T.text, marginTop: '2px' }}>MySQL · lab_platform</div>
             </div>
-            <div style={{
-              display: 'inline-flex', alignItems: 'center', gap: '5px',
-              fontSize: '10px', fontWeight: '700',
-              background: T.okLight, color: T.ok,
-              padding: '4px 10px', borderRadius: '20px',
-              textTransform: 'uppercase', letterSpacing: '0.5px',
-            }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '10px', fontWeight: '700', background: T.okLight, color: T.ok, padding: '4px 10px', borderRadius: '20px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: T.ok }} />
               Synchronisée
             </div>
           </div>
         )}
 
-        {/* Footer : bouton OK */}
-        <div style={{
-          padding: '18px 32px',
-          borderTop: `1px solid ${T.border}`,
-          display: 'flex', justifyContent: 'flex-end',
-        }}>
-          <button
-            onClick={onClose}
+        <div style={{ padding: '18px 32px', borderTop: `1px solid ${T.border}`, display: 'flex', justifyContent: 'flex-end' }}>
+          <button onClick={onClose}
             onMouseEnter={e => e.currentTarget.style.background = T.orangeDark}
             onMouseLeave={e => e.currentTarget.style.background = T.orange}
-            style={{
-              padding: '10px 28px', borderRadius: '8px', border: 'none',
-              background: T.orange, color: '#fff',
-              fontSize: '13px', fontWeight: '700',
-              cursor: 'pointer', fontFamily: FONT,
-              transition: 'background .15s',
-              letterSpacing: '0.3px',
-            }}
-          >
+            style={{ padding: '10px 28px', borderRadius: '8px', border: 'none', background: T.orange, color: '#fff', fontSize: '13px', fontWeight: '700', cursor: 'pointer', fontFamily: FONT, transition: 'background .15s', letterSpacing: '0.3px' }}>
             Terminé
           </button>
         </div>
       </div>
 
-      {/* Animations CSS */}
       <style>{`
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to   { opacity: 1; }
-        }
-        @keyframes modalIn {
-          from { opacity: 0; transform: translate(-50%, -48%) scale(0.92); }
-          to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-        }
-        @keyframes iconPop {
-          0%   { transform: scale(0); }
-          60%  { transform: scale(1.15); }
-          100% { transform: scale(1); }
-        }
+        @keyframes fadeIn  { from { opacity: 0 } to { opacity: 1 } }
+        @keyframes modalIn { from { opacity: 0; transform: translate(-50%, -48%) scale(0.92) } to { opacity: 1; transform: translate(-50%, -50%) scale(1) } }
+        @keyframes iconPop { 0% { transform: scale(0) } 60% { transform: scale(1.15) } 100% { transform: scale(1) } }
+        @keyframes pulse   { 0%, 100% { opacity: 1 } 50% { opacity: 0.4 } }
       `}</style>
     </>
   )
 }
 
 /* ─────────────────────────────────────────
-   NAVBAR ADMIN avec liens + toggle dark
+   NAVBAR ADMIN
 ───────────────────────────────────────── */
-function NavbarAdmin({ user, onDeconnexion, onExportMySQL, exportLoading, navigate, dark, onToggleDark, T }) {
-  const [hovLogout, setHovLogout] = useState(false)
-  const [hovExport, setHovExport] = useState(false)
-  const [hovTheme, setHovTheme] = useState(false)
-  const [hovLink, setHovLink] = useState(null)
+function NavbarAdmin({ user, onDeconnexion, onExportMySQL, exportLoading, navigate, dark, onToggleDark, T, exportInfo, token }) {
+  const [hovLogout,  setHovLogout]  = useState(false)
+  const [hovExport,  setHovExport]  = useState(false)
+  const [hovTheme,   setHovTheme]   = useState(false)
+  const [hovLink,    setHovLink]    = useState(null)
   const currentPath = window.location.pathname
 
   const links = [
     { label: 'Utilisateurs', path: '/admin' },
-    { label: 'Parcours', path: '/admin/gestion' },
+    { label: 'Parcours',     path: '/admin/gestion' },
   ]
 
   return (
@@ -427,31 +449,11 @@ function NavbarAdmin({ user, onDeconnexion, onExportMySQL, exportLoading, naviga
       position: 'sticky', top: 0, zIndex: 200, boxSizing: 'border-box',
       transition: 'background .3s, border-color .3s',
     }}>
+      {/* Logo + liens */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '36px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => navigate('/admin')}>
-          {/* <div style={{ width: '34px', height: '34px', borderRadius: '6px', background: T.logoIcon, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background .3s' }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <rect x="5" y="5" width="14" height="14" rx="2" stroke={dark ? '#1A1A1A' : '#FFFFFF'} strokeWidth="2"/>
-              <path d="M9 12h6M12 9v6" stroke={dark ? '#1A1A1A' : '#FFFFFF'} strokeWidth="2" strokeLinecap="round"/>
-            </svg>
-          </div> */}
-          <div style={{
-            width: '40px',
-            height: '40px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0,
-          }}>
-            <img
-              src={logo}
-              alt="logo"
-              style={{
-                width: '140%',
-                height: '140%',
-                objectFit: 'contain'
-              }}
-            />
+          <div style={{ width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <img src={logo} alt="logo" style={{ width: '140%', height: '140%', objectFit: 'contain' }} />
           </div>
           <div style={{ lineHeight: 1 }}>
             <div style={{ fontSize: '15px', fontWeight: '700', color: T.logoText, fontFamily: FONT, transition: 'color .3s' }}>
@@ -466,10 +468,11 @@ function NavbarAdmin({ user, onDeconnexion, onExportMySQL, exportLoading, naviga
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
           {links.map(link => {
             const isActive = currentPath === link.path
-            const isHov = hovLink === link.path
+            const isHov    = hovLink === link.path
             return (
               <button key={link.path} onClick={() => navigate(link.path)}
-                onMouseEnter={() => setHovLink(link.path)} onMouseLeave={() => setHovLink(null)}
+                onMouseEnter={() => setHovLink(link.path)}
+                onMouseLeave={() => setHovLink(null)}
                 style={{
                   fontSize: '13px', fontWeight: isActive ? '700' : '500',
                   color: isActive || isHov ? T.orange : T.text,
@@ -484,7 +487,18 @@ function NavbarAdmin({ user, onDeconnexion, onExportMySQL, exportLoading, naviga
         </div>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+      {/* Droite */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+
+        {/* ── BADGE DERNIER EXPORT AUTO ── */}
+        <BadgeExportAuto exportInfo={exportInfo} token={token} T={T} />
+
+        {/* Séparateur si badge présent */}
+        {exportInfo?.dernierExport && (
+          <div style={{ width: '1px', height: '22px', background: T.border }} />
+        )}
+
+        {/* Bouton Export MySQL manuel */}
         <button
           onClick={onExportMySQL}
           disabled={exportLoading}
@@ -506,18 +520,11 @@ function NavbarAdmin({ user, onDeconnexion, onExportMySQL, exportLoading, naviga
           {exportLoading ? 'Export...' : 'Export Data'}
         </button>
 
-        <button
-          onClick={onToggleDark}
+        {/* Toggle dark/light */}
+        <button onClick={onToggleDark}
           onMouseEnter={() => setHovTheme(true)}
           onMouseLeave={() => setHovTheme(false)}
-          title={dark ? 'Passer en mode clair' : 'Passer en mode sombre'}
-          style={{
-            width: '34px', height: '34px', borderRadius: '50%', border: 'none',
-            background: hovTheme ? T.pillBg : 'transparent',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer', transition: 'background .15s', flexShrink: 0,
-          }}
-        >
+          style={{ width: '34px', height: '34px', borderRadius: '50%', border: 'none', background: hovTheme ? T.pillBg : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'background .15s', flexShrink: 0 }}>
           {dark ? <Icon.Sun size={16} color={T.orange} /> : <Icon.Moon size={16} color={T.textSub} />}
         </button>
 
@@ -528,16 +535,10 @@ function NavbarAdmin({ user, onDeconnexion, onExportMySQL, exportLoading, naviga
         </div>
         <span style={{ fontSize: '13px', fontWeight: '500', color: T.text, fontFamily: FONT }}>{user?.nom}</span>
 
-        <button onClick={onDeconnexion} onMouseEnter={() => setHovLogout(true)} onMouseLeave={() => setHovLogout(false)}
-          style={{
-            display: 'flex', alignItems: 'center', gap: '6px',
-            fontSize: '12px', fontWeight: '500',
-            color: hovLogout ? T.orange : T.textSub,
-            padding: '5px 11px',
-            border: `1px solid ${hovLogout ? T.orange : T.border}`,
-            borderRadius: '4px', background: 'none',
-            cursor: 'pointer', fontFamily: FONT, transition: 'all .15s',
-          }}>
+        <button onClick={onDeconnexion}
+          onMouseEnter={() => setHovLogout(true)}
+          onMouseLeave={() => setHovLogout(false)}
+          style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: '500', color: hovLogout ? T.orange : T.textSub, padding: '5px 11px', border: `1px solid ${hovLogout ? T.orange : T.border}`, borderRadius: '4px', background: 'none', cursor: 'pointer', fontFamily: FONT, transition: 'all .15s' }}>
           <Icon.Logout size={13} color={hovLogout ? T.orange : T.textSub} />
           Déconnexion
         </button>
@@ -570,8 +571,8 @@ function Breadcrumb({ items, T }) {
 function StatsRow({ users, T }) {
   const usersAvecSessions = users.filter(u => u.total_labs > 0)
   const items = [
-    { lbl: 'Utilisateurs', val: users.length, sub: 'Comptes enregistrés' },
-    { lbl: 'Utilisateurs actifs', val: usersAvecSessions.length, sub: 'Apprenants en activité' },
+    { lbl: 'Utilisateurs',        val: users.length,              sub: 'Comptes enregistrés' },
+    { lbl: 'Utilisateurs actifs', val: usersAvecSessions.length,  sub: 'Apprenants en activité' },
   ]
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '14px', marginBottom: '26px' }}>
@@ -608,21 +609,18 @@ function UserRow({ u, index, formatDate, onDetail, T }) {
       <td style={{ padding: '13px 20px' }}>
         {u.derniere_connexion ? (
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '11px', fontWeight: '700', background: T.okLight, color: T.ok, padding: '3px 8px', borderRadius: '3px', fontFamily: FONT }}>
-            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: T.ok, display: 'inline-block' }} />
-            Actif
+            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: T.ok, display: 'inline-block' }} /> Actif
           </span>
         ) : (
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '11px', fontWeight: '700', background: T.pillBg, color: T.textSub, padding: '3px 8px', borderRadius: '3px', fontFamily: FONT }}>
-            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: T.textSub, display: 'inline-block' }} />
-            Inactif
+            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: T.textSub, display: 'inline-block' }} /> Inactif
           </span>
         )}
       </td>
       <td style={{ padding: '13px 20px' }}>
         <button onClick={onDetail}
           style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: '600', padding: '6px 14px', borderRadius: '4px', border: `1px solid ${hovered ? T.orange : T.border}`, background: hovered ? T.orangeLight : 'none', color: hovered ? T.orange : T.textSub, cursor: 'pointer', fontFamily: FONT, transition: 'all .15s' }}>
-          Voir détails
-          <Icon.ArrowRight size={12} color={hovered ? T.orange : T.textSub} />
+          Voir détails <Icon.ArrowRight size={12} color={hovered ? T.orange : T.textSub} />
         </button>
       </td>
     </tr>
@@ -633,17 +631,18 @@ function UserRow({ u, index, formatDate, onDetail, T }) {
    COMPOSANT PRINCIPAL
 ───────────────────────────────────────── */
 function Admin() {
-  const [users, setUsers] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [recherche, setRecherche] = useState('')
+  const [users,         setUsers]         = useState([])
+  const [loading,       setLoading]       = useState(true)
+  const [recherche,     setRecherche]     = useState('')
   const [exportLoading, setExportLoading] = useState(false)
-  const [exportResult, setExportResult] = useState(null)  // ← NOUVEAU : popup modal
+  const [exportResult,  setExportResult]  = useState(null)
+  const [exportInfo,    setExportInfo]    = useState(null)   // ← info dernier export auto
   const [dark, setDark] = useState(() => localStorage.getItem('theme_admin') === 'dark')
   const navigate = useNavigate()
 
   const token = localStorage.getItem('token')
-  const user = JSON.parse(localStorage.getItem('user'))
-  const T = getTheme(dark)
+  const user  = JSON.parse(localStorage.getItem('user'))
+  const T     = getTheme(dark)
 
   function toggleDark() {
     setDark(d => {
@@ -653,9 +652,11 @@ function Admin() {
     })
   }
 
-  useEffect(() => { chargerUsers() }, [])
+  useEffect(() => {
+    chargerUsers()
+    chargerExportInfo()  // ← charger l'info du dernier export au démarrage
+  }, [])
 
-  // Fermer modal avec la touche Escape
   useEffect(() => {
     if (!exportResult) return
     const handleEsc = e => { if (e.key === 'Escape') setExportResult(null) }
@@ -665,39 +666,34 @@ function Admin() {
 
   async function chargerUsers() {
     try {
-      const res = await fetch('http://localhost:5000/api/admin/users', { headers: { Authorization: `Bearer ${token}` } })
+      const res  = await fetch('http://localhost:5000/api/admin/users', { headers: { Authorization: `Bearer ${token}` } })
       const data = await res.json()
       setUsers(data)
       setLoading(false)
     } catch (err) { console.log(err) }
   }
 
+  // Charger les infos du dernier export automatique
+  async function chargerExportInfo() {
+    try {
+      const res  = await fetch('http://localhost:5000/api/admin/export-info', { headers: { Authorization: `Bearer ${token}` } })
+      const data = await res.json()
+      setExportInfo(data)
+    } catch (err) { console.log('Export info non disponible') }
+  }
+
   async function exportMySQL() {
     setExportLoading(true)
     try {
-      const res = await fetch('http://localhost:5000/api/admin/export-mysql', { method: 'POST', headers: { Authorization: `Bearer ${token}` } })
+      const res  = await fetch('http://localhost:5000/api/admin/export-mysql', { method: 'POST', headers: { Authorization: `Bearer ${token}` } })
       const data = await res.json()
-
       if (res.ok) {
-        // ✅ Succès → affiche le popup de succès avec les stats
-        setExportResult({
-          type: 'success',
-          message: data.message,
-          stats: data.stats,
-        })
+        setExportResult({ type: 'success', message: data.message, stats: data.stats })
       } else {
-        // ❌ Erreur serveur → popup d'erreur
-        setExportResult({
-          type: 'error',
-          message: data.message || 'Une erreur est survenue lors de l\'export',
-        })
+        setExportResult({ type: 'error', message: data.message || "Une erreur est survenue lors de l'export" })
       }
     } catch (err) {
-      console.log(err)
-      setExportResult({
-        type: 'error',
-        message: 'Impossible de contacter le serveur. Vérifiez votre connexion.',
-      })
+      setExportResult({ type: 'error', message: 'Impossible de contacter le serveur.' })
     }
     setExportLoading(false)
   }
@@ -729,6 +725,8 @@ function Admin() {
         dark={dark}
         onToggleDark={toggleDark}
         T={T}
+        exportInfo={exportInfo}
+        token={token}
       />
       <Breadcrumb items={[{ label: 'Gestion des utilisateurs' }]} T={T} />
 
@@ -763,20 +761,13 @@ function Admin() {
                   <Icon.Users size={15} color={T.textSub} />
                   Utilisateurs enregistrés
                 </span>
-
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: T.inputBg, border: `1px solid ${T.border}`, borderRadius: '4px', padding: '7px 12px', width: '280px' }}>
                   <Icon.Search size={13} color={T.textSub} />
-                  <input
-                    type="text"
-                    value={recherche}
-                    onChange={e => setRecherche(e.target.value)}
+                  <input type="text" value={recherche} onChange={e => setRecherche(e.target.value)}
                     placeholder="Rechercher par nom ou email..."
-                    style={{ flex: 1, border: 'none', background: 'transparent', fontSize: '12px', color: T.text, fontFamily: FONT, outline: 'none' }}
-                  />
+                    style={{ flex: 1, border: 'none', background: 'transparent', fontSize: '12px', color: T.text, fontFamily: FONT, outline: 'none' }} />
                   {recherche && (
-                    <button onClick={() => setRecherche('')} style={{ border: 'none', background: 'none', cursor: 'pointer', color: T.textSub, fontSize: '16px', lineHeight: 1, padding: 0 }}>
-                      ×
-                    </button>
+                    <button onClick={() => setRecherche('')} style={{ border: 'none', background: 'none', cursor: 'pointer', color: T.textSub, fontSize: '16px', lineHeight: 1, padding: 0 }}>×</button>
                   )}
                 </div>
               </div>
@@ -810,13 +801,7 @@ function Admin() {
         )}
       </div>
 
-      {/* Modal de résultat export */}
-      <ExportResultModal
-        result={exportResult}
-        onClose={() => setExportResult(null)}
-        T={T}
-        dark={dark}
-      />
+      <ExportResultModal result={exportResult} onClose={() => setExportResult(null)} T={T} dark={dark} />
     </div>
   )
 }
