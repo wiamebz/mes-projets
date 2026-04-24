@@ -1,10 +1,12 @@
-
 const express = require('express')
 const mongoose = require('mongoose')
 const cors = require('cors')
 const http = require('http')
 const { Server } = require('socket.io')
 require('dotenv').config()
+const path = require('path')
+const fs = require('fs')
+const cron = require('node-cron')
 
 const Docker = require('dockerode')
 const docker = new Docker()
@@ -17,11 +19,11 @@ const authRoutes = require('./routes/auth')
 const adminRoutes = require('./routes/admin')
 const Session = require('./models/Session')
 
+const { exporterDonnees } = require('./export_csv')
+
 const app = express()
 const server = http.createServer(app)
-const io = new Server(server, {
-    cors: { origin: '*' }
-})
+const io = new Server(server, { cors: { origin: '*' } })
 
 app.use(cors())
 app.use(express.json())
@@ -34,6 +36,92 @@ app.get('/', (req, res) => {
     res.json({ message: 'Serveur fonctionne !' })
 })
 
+/* ═════════════════════════════════════════════════════════════
+   ROUTES EXPORT CSV
+═══════════════════════════════════════════════════════════════ */
+
+// GET — infos du dernier export (pour le badge admin)
+app.get('/api/admin/export-info', authMiddleware, adminMiddleware, (req, res) => {
+    try {
+        const metaPath = path.join(__dirname, 'exports', 'meta.json')
+        if (!fs.existsSync(metaPath)) {
+            return res.json({ dernierExport: null, fichier: null })
+        }
+        const meta = JSON.parse(fs.readFileSync(metaPath, 'utf8'))
+        res.json(meta)
+    } catch (err) {
+        res.json({ dernierExport: null, fichier: null })
+    }
+})
+
+// GET — liste des exports disponibles
+app.get('/api/admin/exports', authMiddleware, adminMiddleware, (req, res) => {
+    try {
+        const dir = path.join(__dirname, 'exports')
+        if (!fs.existsSync(dir)) return res.json([])
+
+        const files = fs.readdirSync(dir)
+            .filter(f => f.endsWith('.tar'))
+            .map(f => {
+                const stat = fs.statSync(path.join(dir, f))
+                return {
+                    nom: f,
+                    taille: Math.round(stat.size / 1024) + ' Ko',
+                    date: stat.mtime.toISOString(),
+                }
+            })
+            .sort((a, b) => new Date(b.date) - new Date(a.date))
+
+        res.json(files)
+    } catch (err) {
+        res.status(500).json({ message: err.message })
+    }
+})
+
+// GET — télécharger un fichier tar
+app.get('/api/admin/exports/download/:filename', authMiddleware, adminMiddleware, (req, res) => {
+    try {
+        const filename = req.params.filename
+        // Sécurité : pas de path traversal
+        if (filename.includes('..') || filename.includes('/')) {
+            return res.status(400).json({ message: 'Nom de fichier invalide' })
+        }
+        const filePath = path.join(__dirname, 'exports', filename)
+        if (!fs.existsSync(filePath)) {
+            return res.status(404).json({ message: 'Fichier introuvable' })
+        }
+        res.download(filePath, filename)
+    } catch (err) {
+        res.status(500).json({ message: err.message })
+    }
+})
+
+// POST — déclencher un export manuel (pour tester)
+app.post('/api/admin/export-csv-manuel', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+        console.log(' Export manuel déclenché par admin')
+        const result = await exporterDonnees()
+        res.json(result)
+    } catch (err) {
+        res.status(500).json({ message: err.message })
+    }
+})
+
+/* ═════════════════════════════════════════════════════════════
+   CRON JOB — Export automatique à minuit chaque jour
+═══════════════════════════════════════════════════════════════ */
+cron.schedule('0 0 * * *', async () => {
+    console.log(' Cron minuit — démarrage export automatique...')
+    await exporterDonnees()
+}, {
+    timezone: 'Africa/Casablanca' // GMT+1 Maroc / France → adapte si besoin
+})
+
+console.log('Cron job export CSV programmé à minuit ')
+
+/* ─────────────────────────────────────────
+   Helpers
+───────────────────────────────────────── */
 function compterQuestions(buffer) {
     const matches = buffer.match(/Question \d+\/\d+/g)
     return matches ? matches.length : 0
@@ -44,7 +132,6 @@ function compterBonnes(buffer) {
     return matches ? matches.length : 0
 }
 
-// Supprimer le cluster Kind après la fin du lab
 async function supprimerClusterKind() {
     try {
         const containers = await docker.listContainers()
@@ -53,7 +140,7 @@ async function supprimerClusterKind() {
                 const c = docker.getContainer(cont.Id)
                 await c.stop()
                 await c.remove()
-                console.log('Cluster Kind supprimé ✅')
+                console.log('Cluster Kind supprimé ')
             }
         }
     } catch (err) {
@@ -61,6 +148,9 @@ async function supprimerClusterKind() {
     }
 }
 
+/* ─────────────────────────────────────────
+   Socket.io — gestion des labs
+───────────────────────────────────────── */
 io.on('connection', (socket) => {
 
     socket.on('start_lab', async (data) => {
@@ -100,7 +190,6 @@ io.on('connection', (socket) => {
             await conteneur.start()
             socket.emit('conteneur_id', conteneur.id)
 
-            // Un seul stream pour input et output
             const stream = await conteneur.attach({
                 stream: true,
                 stdin: true,
@@ -112,7 +201,6 @@ io.on('connection', (socket) => {
             let outputBuffer = ''
             let isFirstChunk = true
 
-            // Timeout 30 minutes
             const timeout = setTimeout(async () => {
                 try {
                     const tempsPasse = Math.floor((Date.now() - tempsDebut) / 1000)
@@ -131,22 +219,17 @@ io.on('connection', (socket) => {
                         await supprimerClusterKind()
                         await conteneur.stop()
                         await conteneur.remove()
-                    } catch (err) {
-                        console.log('Conteneur déjà supprimé')
-                    }
+                    } catch (err) { console.log('Conteneur déjà supprimé') }
 
-                    socket.emit('output', '\n⏱️ Temps limite de 30 minutes dépassé ! Lab terminé.')
+                    socket.emit('output', '\n Temps limite de 30 minutes dépassé ! Lab terminé.')
                     socket.emit('lab_termine')
-                    console.log('Lab terminé par timeout ✅')
-                } catch (err) {
-                    console.log(err)
-                }
+                    console.log('Lab terminé par timeout ')
+                } catch (err) { console.log(err) }
             }, 30 * 60 * 1000)
 
             stream.on('data', (chunk) => {
                 let text = chunk.toString('utf8')
 
-                // Filtrer le header JSON du premier chunk
                 if (isFirstChunk) {
                     const jsonEnd = text.indexOf('}')
                     if (jsonEnd !== -1 && text.startsWith('{')) {
@@ -158,7 +241,6 @@ io.on('connection', (socket) => {
                 outputBuffer += text
                 socket.emit('output', text)
 
-                // Détecter les étapes
                 const lines = text.split('\n')
                 lines.forEach(async (line) => {
                     const stepMatch = line.match(/STEP_COMPLETED:(\w+):(true|false):(.+)/)
@@ -182,8 +264,6 @@ io.on('connection', (socket) => {
                 try {
                     const tempsPasse = Math.floor((Date.now() - tempsDebut) / 1000)
                     const labComplete = outputBuffer.includes('LAB_COMPLETED')
-
-                    // Récupérer les étapes sauvegardées
                     const sessionActuelle = await Session.findById(session._id)
                     const etapes = sessionActuelle.etapes || []
 
@@ -192,10 +272,8 @@ io.on('connection', (socket) => {
 
                     if (labComplete) {
                         if (etapes.length > 0) {
-                            // Lab avec étapes → toutes les étapes doivent être complétées
                             reussi = etapes.every(e => e.completee === true)
                         } else {
-                            // Lab avec questions (addition/soustraction)
                             const total = compterQuestions(outputBuffer)
                             const bonnes = compterBonnes(outputBuffer)
                             reussi = total > 0 && bonnes === total
@@ -211,10 +289,8 @@ io.on('connection', (socket) => {
                     await supprimerClusterKind()
                     await conteneur.remove()
                     socket.emit('lab_termine')
-                    console.log(`Session — statut: ${statut} reussi: ${reussi} ✅`)
-                } catch (err) {
-                    console.log(err)
-                }
+                    console.log(`Session — statut: ${statut} reussi: ${reussi} `)
+                } catch (err) { console.log(err) }
             })
 
             stream.on('error', (err) => {
@@ -234,7 +310,6 @@ io.on('connection', (socket) => {
                     if (sessionActuelle.statut !== 'termine') {
                         const total = compterQuestions(outputBuffer)
                         const bonnes = compterBonnes(outputBuffer)
-
                         await Session.findByIdAndUpdate(session._id, {
                             temps_passe: tempsPasse,
                             nombre_questions: total,
@@ -248,14 +323,10 @@ io.on('connection', (socket) => {
                         await supprimerClusterKind()
                         await conteneur.stop()
                         await conteneur.remove()
-                    } catch (dockerErr) {
-                        console.log('Conteneur déjà supprimé')
-                    }
+                    } catch (dockerErr) { console.log('Conteneur déjà supprimé') }
 
-                    console.log('Conteneur supprimé ✅')
-                } catch (err) {
-                    console.log(err)
-                }
+                    console.log('Conteneur supprimé ')
+                } catch (err) { console.log(err) }
             })
 
             socket.on('stop_lab', async (stopData) => {
@@ -267,7 +338,6 @@ io.on('connection', (socket) => {
                     if (sessionActuelle.statut !== 'termine') {
                         const total = compterQuestions(outputBuffer)
                         const bonnes = compterBonnes(outputBuffer)
-
                         await Session.findByIdAndUpdate(session._id, {
                             temps_passe: tempsPasse,
                             nombre_questions: total,
@@ -282,14 +352,10 @@ io.on('connection', (socket) => {
                         const cont = docker.getContainer(stopData.conteneur_id)
                         await cont.stop()
                         await cont.remove()
-                    } catch (dockerErr) {
-                        console.log('Conteneur déjà supprimé')
-                    }
+                    } catch (dockerErr) { console.log('Conteneur déjà supprimé') }
 
-                    console.log('Stop lab traité ✅')
-                } catch (err) {
-                    console.log(err)
-                }
+                    console.log('Stop lab traité ')
+                } catch (err) { console.log(err) }
             })
 
         } catch (err) {
@@ -299,10 +365,10 @@ io.on('connection', (socket) => {
 })
 
 mongoose.connect(process.env.MONGODB_URI)
-    .then(() => console.log('MongoDB connecté ✅'))
+    .then(() => console.log('MongoDB connecté '))
     .catch(err => console.log('Erreur MongoDB :', err))
 
 const PORT = process.env.PORT
 server.listen(PORT, () => {
-    console.log(`Serveur tourne sur le port ${PORT} ✅`)
+    console.log(`Serveur tourne sur le port ${PORT} `)
 })
