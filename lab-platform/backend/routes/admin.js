@@ -319,7 +319,7 @@ router.post('/export-mysql', async (req, res) => {
             multipleStatements: false,
         })
 
-        console.log('🔄 Début export MySQL (mode complet)...')
+        console.log(' Début export MySQL (mode complet)...')
 
         /* ─── 1. CRÉATION DES TABLES (avec tous les champs enrichis) ─── */
 
@@ -434,7 +434,7 @@ router.post('/export-mysql', async (req, res) => {
                 ]
             )
         }
-        console.log(`👥 ${users.length} users importés`)
+        console.log(`${users.length} users importés`)
 
         /* ─── 4. IMPORTER CATÉGORIES ─── */
         const categories = await Categorie.find()
@@ -517,7 +517,7 @@ router.post('/export-mysql', async (req, res) => {
                 }
             }
         }
-        console.log(`📊 ${sessions.length} sessions + ${totalEtapes} étapes importées`)
+        console.log(` ${sessions.length} sessions + ${totalEtapes} étapes importées`)
 
         await connection.end()
         console.log('Export MySQL terminé avec succès')

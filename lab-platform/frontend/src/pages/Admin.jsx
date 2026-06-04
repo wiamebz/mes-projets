@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import logo from '../img/logo.png'
+import api from '../api/axios'
 /* ─────────────────────────────────────────
    THÈME — light / dark (admin séparé du user)
 ───────────────────────────────────────── */
@@ -211,15 +212,13 @@ function BadgeExportAuto({ exportInfo, token, T }) {
   async function telecharger() {
     if (!exportInfo.fichier) return
     try {
-      const res = await fetch(
-        `http://localhost:5000/api/admin/exports/download/${exportInfo.fichier}`,
-        { headers: { Authorization: `Bearer ${token}` } }
+      const res = await api.get(
+        `/admin/exports/download/${exportInfo.fichier}`,
+        { responseType: 'blob' }
       )
-      if (!res.ok) return
-      const blob = await res.blob()
-      const url  = URL.createObjectURL(blob)
-      const a    = document.createElement('a')
-      a.href     = url
+      const url = URL.createObjectURL(res.data)
+      const a = document.createElement('a')
+      a.href = url
       a.download = exportInfo.fichier
       a.click()
       URL.revokeObjectURL(url)
@@ -252,7 +251,7 @@ function BadgeExportAuto({ exportInfo, token, T }) {
           textTransform: 'uppercase', letterSpacing: '0.6px',
           fontFamily: FONT,
         }}>
-          Export 
+          Export
         </div>
         <div style={{
           fontSize: '11px', fontWeight: '600', color: T.textSub,
@@ -298,14 +297,14 @@ function ExportResultModal({ result, onClose, T, dark }) {
   const isSuccess = result.type === 'success'
   const accentColor = isSuccess ? T.ok : T.err
   const accentLight = isSuccess ? T.okLight : T.errLight
-  const HeaderIcon  = isSuccess ? Icon.CheckBold : Icon.XBold
+  const HeaderIcon = isSuccess ? Icon.CheckBold : Icon.XBold
 
   const stats = isSuccess && result.stats ? [
-    { icon: Icon.UsersBold,   label: 'Utilisateurs', value: result.stats.users      ?? 0, color: '#5C6BC0' },
-    { icon: Icon.LayersBold,  label: 'Catégories',   value: result.stats.categories ?? 0, color: '#26A69A' },
-    { icon: Icon.BoxBold,     label: 'Labs',          value: result.stats.labs       ?? 0, color: T.orange  },
-    { icon: Icon.ActivityBold,label: 'Sessions',      value: result.stats.sessions   ?? 0, color: '#AB47BC' },
-    { icon: Icon.ChecksBold,  label: 'Étapes',        value: result.stats.etapes     ?? 0, color: '#42A5F5' },
+    { icon: Icon.UsersBold, label: 'Utilisateurs', value: result.stats.users ?? 0, color: '#5C6BC0' },
+    { icon: Icon.LayersBold, label: 'Catégories', value: result.stats.categories ?? 0, color: '#26A69A' },
+    { icon: Icon.BoxBold, label: 'Labs', value: result.stats.labs ?? 0, color: T.orange },
+    { icon: Icon.ActivityBold, label: 'Sessions', value: result.stats.sessions ?? 0, color: '#AB47BC' },
+    { icon: Icon.ChecksBold, label: 'Étapes', value: result.stats.etapes ?? 0, color: '#42A5F5' },
   ] : []
 
   return (
@@ -430,15 +429,15 @@ function ExportResultModal({ result, onClose, T, dark }) {
    NAVBAR ADMIN
 ───────────────────────────────────────── */
 function NavbarAdmin({ user, onDeconnexion, onExportMySQL, exportLoading, navigate, dark, onToggleDark, T, exportInfo, token }) {
-  const [hovLogout,  setHovLogout]  = useState(false)
-  const [hovExport,  setHovExport]  = useState(false)
-  const [hovTheme,   setHovTheme]   = useState(false)
-  const [hovLink,    setHovLink]    = useState(null)
+  const [hovLogout, setHovLogout] = useState(false)
+  const [hovExport, setHovExport] = useState(false)
+  const [hovTheme, setHovTheme] = useState(false)
+  const [hovLink, setHovLink] = useState(null)
   const currentPath = window.location.pathname
 
   const links = [
     { label: 'Utilisateurs', path: '/admin' },
-    { label: 'Parcours',     path: '/admin/gestion' },
+    { label: 'Parcours', path: '/admin/gestion' },
   ]
 
   return (
@@ -468,7 +467,7 @@ function NavbarAdmin({ user, onDeconnexion, onExportMySQL, exportLoading, naviga
         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
           {links.map(link => {
             const isActive = currentPath === link.path
-            const isHov    = hovLink === link.path
+            const isHov = hovLink === link.path
             return (
               <button key={link.path} onClick={() => navigate(link.path)}
                 onMouseEnter={() => setHovLink(link.path)}
@@ -569,10 +568,10 @@ function Breadcrumb({ items, T }) {
    STATS ROW
 ───────────────────────────────────────── */
 function StatsRow({ users, T }) {
-  const usersAvecSessions = users.filter(u => u.total_labs > 0)
+  const usersActifs = users.filter(u => u.derniere_connexion)
   const items = [
-    { lbl: 'Utilisateurs',        val: users.length,              sub: 'Comptes enregistrés' },
-    { lbl: 'Utilisateurs actifs', val: usersAvecSessions.length,  sub: 'Apprenants en activité' },
+    { lbl: 'Utilisateurs', val: users.length, sub: 'Comptes enregistrés' },
+    { lbl: 'Utilisateurs actifs', val: usersActifs.length, sub: 'S\'étant déjà connectés' },
   ]
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '14px', marginBottom: '26px' }}>
@@ -631,18 +630,18 @@ function UserRow({ u, index, formatDate, onDetail, T }) {
    COMPOSANT PRINCIPAL
 ───────────────────────────────────────── */
 function Admin() {
-  const [users,         setUsers]         = useState([])
-  const [loading,       setLoading]       = useState(true)
-  const [recherche,     setRecherche]     = useState('')
+  const [users, setUsers] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [recherche, setRecherche] = useState('')
   const [exportLoading, setExportLoading] = useState(false)
-  const [exportResult,  setExportResult]  = useState(null)
-  const [exportInfo,    setExportInfo]    = useState(null)   // ← info dernier export auto
+  const [exportResult, setExportResult] = useState(null)
+  const [exportInfo, setExportInfo] = useState(null)   // ← info dernier export auto
   const [dark, setDark] = useState(() => localStorage.getItem('theme_admin') === 'dark')
   const navigate = useNavigate()
 
   const token = localStorage.getItem('token')
-  const user  = JSON.parse(localStorage.getItem('user'))
-  const T     = getTheme(dark)
+  const user = JSON.parse(localStorage.getItem('user'))
+  const T = getTheme(dark)
 
   function toggleDark() {
     setDark(d => {
@@ -664,36 +663,30 @@ function Admin() {
     return () => window.removeEventListener('keydown', handleEsc)
   }, [exportResult])
 
+
   async function chargerUsers() {
     try {
-      const res  = await fetch('http://localhost:5000/api/admin/users', { headers: { Authorization: `Bearer ${token}` } })
-      const data = await res.json()
-      setUsers(data)
+      const res = await api.get('/admin/users')
+      setUsers(res.data)
       setLoading(false)
     } catch (err) { console.log(err) }
   }
-
   // Charger les infos du dernier export automatique
   async function chargerExportInfo() {
     try {
-      const res  = await fetch('http://localhost:5000/api/admin/export-info', { headers: { Authorization: `Bearer ${token}` } })
-      const data = await res.json()
-      setExportInfo(data)
+      const res = await api.get('/admin/export-info')
+      setExportInfo(res.data)
     } catch (err) { console.log('Export info non disponible') }
   }
 
   async function exportMySQL() {
     setExportLoading(true)
     try {
-      const res  = await fetch('http://localhost:5000/api/admin/export-mysql', { method: 'POST', headers: { Authorization: `Bearer ${token}` } })
-      const data = await res.json()
-      if (res.ok) {
-        setExportResult({ type: 'success', message: data.message, stats: data.stats })
-      } else {
-        setExportResult({ type: 'error', message: data.message || "Une erreur est survenue lors de l'export" })
-      }
+      const res = await api.post('/admin/export-mysql')
+      setExportResult({ type: 'success', message: res.data.message, stats: res.data.stats })
     } catch (err) {
-      setExportResult({ type: 'error', message: 'Impossible de contacter le serveur.' })
+      const msg = err.response?.data?.message || 'Impossible de contacter le serveur.'
+      setExportResult({ type: 'error', message: msg })
     }
     setExportLoading(false)
   }

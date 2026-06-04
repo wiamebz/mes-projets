@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import logo from '../img/logo.png'
-
+import api from '../api/axios'
 /* ─────────────────────────────────────────
    THÈME — light / dark (admin séparé du user)
 ───────────────────────────────────────── */
@@ -499,12 +499,11 @@ function AdminTentatives() {
 
   useEffect(() => { chargerDonnees() }, [])
 
+
   async function chargerDonnees() {
     try {
-      const res = await fetch(`http://localhost:5000/api/admin/users/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      const data = await res.json()
+      const res = await api.get(`/admin/users/${id}`)
+      const data = res.data
       setUser(data.user)
 
       const filtrees = data.sessions.filter(
@@ -518,7 +517,7 @@ function AdminTentatives() {
       setLoading(false)
     } catch (err) { console.log(err) }
   }
-
+  
   function deconnexion() {
     localStorage.removeItem('token')
     localStorage.removeItem('user')

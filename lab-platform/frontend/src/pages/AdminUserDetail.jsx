@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import logo from '../img/logo.png'
+import api from '../api/axios'
 
 /* ─────────────────────────────────────────
    THÈME — light / dark (admin)
@@ -463,13 +464,10 @@ function AdminUserDetail() {
 
   useEffect(() => { chargerDetails() }, [])
 
-  async function chargerDetails() {
+async function chargerDetails() {
     try {
-      const res = await fetch(`http://localhost:5000/api/admin/users/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      const data = await res.json()
-      setDetails(data)
+      const res = await api.get(`/admin/users/${id}`)
+      setDetails(res.data)
       setLoading(false)
     } catch (err) { console.log(err) }
   }
