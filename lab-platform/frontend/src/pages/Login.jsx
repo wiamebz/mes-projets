@@ -1,8 +1,7 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, Link, useLocation } from 'react-router-dom'
 import logo from '../img/logo.png'
-import api from '../api/axios'        
-
+import api from '../api/axios'
 const C = {
   orange: '#FF7900',
   orangeDark: '#E05C00',
@@ -28,8 +27,9 @@ function Login() {
   const [focusEmail, setFocusEmail] = useState(false)
   const [focusPass, setFocusPass] = useState(false)
   const navigate = useNavigate()
-
- async function handleLogin(e) {
+  const location = useLocation()
+  const successMessage = location.state?.message
+  async function handleLogin(e) {
     e.preventDefault()
     setLoading(true)
     setErreur('')
@@ -190,6 +190,27 @@ function Login() {
               Accédez à votre espace
             </p>
           </div>
+
+          
+          {successMessage && (
+            <div style={{
+              background: '#E8F5E9',
+              border: '1px solid #A5D6A7',
+              borderRadius: '4px',
+              padding: '11px 14px',
+              marginBottom: '20px',
+              display: 'flex', alignItems: 'center', gap: '8px',
+            }}>
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                <circle cx="8" cy="8" r="6.25" stroke="#2E7D32" strokeWidth="1.25" />
+                <path d="M5 8l2 2 4-4" stroke="#2E7D32" strokeWidth="1.25"
+                  strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              <span style={{ fontSize: '13px', color: '#2E7D32', fontFamily: FONT }}>
+                {successMessage}
+              </span>
+            </div>
+          )}
 
           {/* Message erreur */}
           {erreur && (

@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import logo from '../img/logo.png'
+import api from '../api/axios'
+
 const C = {
   orange: '#FF7900',
   orangeDark: '#E05C00',
@@ -34,21 +36,14 @@ function Register() {
     setLoading(true)
     setErreur('')
     try {
-      const res = await fetch('http://localhost:5000/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nom, email, mot_de_passe: motDePasse }),
+      await api.post('/auth/register', {
+        nom,
+        email,
+        mot_de_passe: motDePasse,
       })
-      const data = await res.json()
-      if (res.ok) {
-        localStorage.setItem('token', data.token)
-        localStorage.setItem('user', JSON.stringify(data.user))
-        navigate('/labs')
-      } else {
-        setErreur(data.message)
-      }
+      navigate('/login', { state: { message: 'Compte créé avec succès ! Connectez-vous.' } })
     } catch (err) {
-      setErreur('Erreur de connexion au serveur.')
+      setErreur(err.response?.data?.message || 'Erreur de connexion au serveur.')
     }
     setLoading(false)
   }
