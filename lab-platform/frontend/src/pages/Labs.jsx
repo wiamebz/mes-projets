@@ -5,6 +5,7 @@ import { FitAddon } from 'xterm-addon-fit'
 import { io } from 'socket.io-client'
 import 'xterm/css/xterm.css'
 import logo from '../img/logo.png'
+import api from '../api/axios'
 /* ─────────────────────────────────────────
    THÈME
 ───────────────────────────────────────── */
@@ -747,11 +748,17 @@ function Labs() {
     return () => { stopTimer(); supprimerConteneur() }
   }, [])
 
+  // async function chargerLabs() {
+  //   const token = localStorage.getItem('token')
+  //   const res = await fetch('http://localhost:5000/api/labs', { headers: { Authorization: `Bearer ${token}` } })
+  //   const data = await res.json()
+  //   setLabs(data)
+  // }
   async function chargerLabs() {
-    const token = localStorage.getItem('token')
-    const res = await fetch('http://localhost:5000/api/labs', { headers: { Authorization: `Bearer ${token}` } })
-    const data = await res.json()
-    setLabs(data)
+    try {
+      const res = await api.get('/labs')
+      setLabs(res.data)
+    } catch (err) { console.log(err) }
   }
 
   function startTimer() {
@@ -778,13 +785,22 @@ function Labs() {
     }
   }
 
+  // async function supprimerConteneur() {
+  //   const conteneur_id = socketRef.current?.conteneur_id
+  //   if (!conteneur_id) return
+  //   const token = localStorage.getItem('token')
+  //   if (!token) return
+  //   try {
+  //     await fetch(`http://localhost:5000/api/labs/arreter/${conteneur_id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } })
+  //   } catch (err) { console.log(err) }
+  //   if (socketRef.current) socketRef.current.disconnect()
+  //   if (xtermRef.current) { xtermRef.current.dispose(); xtermRef.current = null }
+  // }
   async function supprimerConteneur() {
     const conteneur_id = socketRef.current?.conteneur_id
     if (!conteneur_id) return
-    const token = localStorage.getItem('token')
-    if (!token) return
     try {
-      await fetch(`http://localhost:5000/api/labs/arreter/${conteneur_id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } })
+      await api.delete(`/labs/arreter/${conteneur_id}`)
     } catch (err) { console.log(err) }
     if (socketRef.current) socketRef.current.disconnect()
     if (xtermRef.current) { xtermRef.current.dispose(); xtermRef.current = null }
@@ -840,7 +856,9 @@ function Labs() {
     setPhase('loading')
     etapesRef.current = []
 
-    const socket = io('http://localhost:5000')
+    // const socket = io('http://localhost:5000')
+    // const socket = io()
+    const socket = io('http://localhost:5001')
     socketRef.current = socket
 
     socket.emit('start_lab', {

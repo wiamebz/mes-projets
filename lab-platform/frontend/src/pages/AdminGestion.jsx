@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import logo from '../img/logo.png'
-
+import api from '../api/axios'
 /* ─────────────────────────────────────────
    THÈME — light / dark (admin)
 ───────────────────────────────────────── */
@@ -362,6 +362,7 @@ function LabRow({ lab, onUpdate, toast, T }) {
     : lab.verrouillage_manuel ? 'lock'
       : 'auto'
 
+
   async function changer(nouveau) {
     setSaving(true)
     const update = {
@@ -369,21 +370,11 @@ function LabRow({ lab, onUpdate, toast, T }) {
       deblocage_manuel: nouveau === 'unlock',
     }
     try {
-      const token = localStorage.getItem('token')
-      const res = await fetch(`http://localhost:5000/api/admin/labs/${lab._id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify(update),
-      })
-      const data = await res.json()
-      if (res.ok) {
-        toast(`"${lab.titre}" mis à jour`, 'success')
-        onUpdate()
-      } else {
-        toast(data.message || 'Erreur', 'error')
-      }
+      await api.put(`/admin/labs/${lab._id}`, update)
+      toast(`"${lab.titre}" mis à jour`, 'success')
+      onUpdate()
     } catch (err) {
-      toast('Erreur de connexion', 'error')
+      toast(err.response?.data?.message || 'Erreur de connexion', 'error')
     } finally {
       setSaving(false)
     }
@@ -467,25 +458,15 @@ function CategorieCard({ cat, onUpdate, toast, T }) {
   async function enregistrer() {
     setSaving(true)
     try {
-      const token = localStorage.getItem('token')
-      const res = await fetch(`http://localhost:5000/api/admin/categories/${cat._id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({
-          verrouillage_manuel: verrouillage,
-          deblocage_manuel: deblocage,
-          date_ouverture: dateOuverture || null,
-        }),
+      await api.put(`/admin/categories/${cat._id}`, {
+        verrouillage_manuel: verrouillage,
+        deblocage_manuel: deblocage,
+        date_ouverture: dateOuverture || null,
       })
-      const data = await res.json()
-      if (res.ok) {
-        toast(`Catégorie "${cat.nom}" mise à jour`, 'success')
-        onUpdate()
-      } else {
-        toast(data.message || 'Erreur', 'error')
-      }
+      toast(`Catégorie "${cat.nom}" mise à jour`, 'success')
+      onUpdate()
     } catch (err) {
-      toast('Erreur de connexion', 'error')
+      toast(err.response?.data?.message || 'Erreur de connexion', 'error')
     } finally {
       setSaving(false)
     }
@@ -501,21 +482,11 @@ function CategorieCard({ cat, onUpdate, toast, T }) {
 
     setBulkSaving(true)
     try {
-      const token = localStorage.getItem('token')
-      const res = await fetch(`http://localhost:5000/api/admin/categories/${cat._id}/labs-action`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ action }),
-      })
-      const data = await res.json()
-      if (res.ok) {
-        toast(`${data.modifiedCount} lab(s) mis à jour`, 'success')
-        onUpdate()
-      } else {
-        toast(data.message || 'Erreur', 'error')
-      }
+      const res = await api.put(`/admin/categories/${cat._id}/labs-action`, { action })
+      toast(`${res.data.modifiedCount} lab(s) mis à jour`, 'success')
+      onUpdate()
     } catch (err) {
-      toast('Erreur de connexion', 'error')
+      toast(err.response?.data?.message || 'Erreur de connexion', 'error')
     } finally {
       setBulkSaving(false)
     }
@@ -791,11 +762,8 @@ function AdminGestion() {
 
   async function chargerCategories() {
     try {
-      const res = await fetch('http://localhost:5000/api/admin/categories', {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      const data = await res.json()
-      setCategories(data)
+      const res = await api.get('/admin/categories')
+      setCategories(res.data)
     } catch (err) {
       console.log(err)
       showToast('Erreur de chargement', 'error')
@@ -803,7 +771,7 @@ function AdminGestion() {
       setLoading(false)
     }
   }
-
+  
   function showToast(message, type) {
     setToastState({ message, type })
     setTimeout(() => setToastState(null), 3000)

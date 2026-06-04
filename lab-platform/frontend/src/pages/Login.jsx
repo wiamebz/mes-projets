@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import logo from '../img/logo.png'
+import api from '../api/axios'        
 
 const C = {
   orange: '#FF7900',
@@ -28,30 +29,30 @@ function Login() {
   const [focusPass, setFocusPass] = useState(false)
   const navigate = useNavigate()
 
-  async function handleLogin(e) {
+ async function handleLogin(e) {
     e.preventDefault()
     setLoading(true)
     setErreur('')
     try {
-      const res = await fetch('http://localhost:5000/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, mot_de_passe: motDePasse }),
+      const res = await api.post('/auth/login', {
+        email,
+        mot_de_passe: motDePasse,
       })
-      const data = await res.json()
-      if (res.ok) {
-        localStorage.setItem('token', data.token)
-        localStorage.setItem('user', JSON.stringify(data.user))
-        data.user.role === 'admin' ? navigate('/admin') : navigate('/labs')
-      } else {
-        setErreur(data.message)
-      }
+      const data = res.data
+      localStorage.setItem('token', data.token)
+      localStorage.setItem('user', JSON.stringify(data.user))
+      data.user.role === 'admin' ? navigate('/admin') : navigate('/labs')
     } catch (err) {
-      setErreur('Erreur de connexion au serveur.')
+      if (err.response) {
+        // Le serveur a répondu avec une erreur (ex: 401 mauvais identifiants)
+        setErreur(err.response.data.message || 'Identifiants incorrects.')
+      } else {
+        // Pas de réponse du serveur (réseau, serveur éteint...)
+        setErreur('Erreur de connexion au serveur.')
+      }
     }
     setLoading(false)
   }
-
   return (
     <div style={{
       minHeight: '100vh',

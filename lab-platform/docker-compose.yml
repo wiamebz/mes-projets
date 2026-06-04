@@ -13,7 +13,7 @@ services:
   backend:
     build: ./backend
     ports:
-      - "5000:5000"
+      - "5001:5000"
     depends_on:
       - mongodb
       - mysql
@@ -39,7 +39,8 @@ services:
   mysql:
     image: mysql:8.0
     ports:
-      - "3306:3306"
+      - "3307:3306"        # ← CHANGÉ : 3307 côté Windows (évite le conflit )
+                           #   Le backend continue d'utiliser mysql:3306 en interne (inchangé)
     environment:
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_DATABASE=lab_platform

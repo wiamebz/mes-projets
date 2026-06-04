@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import logo from '../img/logo.png'
+import api from '../api/axios'
 /* ─────────────────────────────────────────
    THÈME
 ───────────────────────────────────────── */
@@ -600,13 +601,20 @@ function Profil() {
     chargerCategories()
   }, [])
 
+  // async function chargerCategories() {
+  //   try {
+  //     const res = await fetch('http://localhost:5000/api/labs/categories', {
+  //       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+  //     })
+  //     const data = await res.json()
+  //     setCategories(data)
+  //   } catch (err) { console.log(err) }
+  //   finally { setLoading(false) }
+  // }
   async function chargerCategories() {
     try {
-      const res = await fetch('http://localhost:5000/api/labs/categories', {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-      })
-      const data = await res.json()
-      setCategories(data)
+      const res = await api.get('/labs/categories')
+      setCategories(res.data)
     } catch (err) { console.log(err) }
     finally { setLoading(false) }
   }
