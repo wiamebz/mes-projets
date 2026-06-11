@@ -114,7 +114,7 @@ cron.schedule('0 0 * * *', async () => {
     console.log(' Cron minuit — démarrage export automatique...')
     await exporterDonnees()
 }, {
-    timezone: 'Africa/Casablanca' // GMT+1 Maroc / France → adapte si besoin
+    timezone: 'Europe/Paris' 
 })
 
 console.log('Cron job export CSV programmé à minuit ')
